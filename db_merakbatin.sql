@@ -111,3 +111,16 @@ CREATE TABLE kontak (
     facebook VARCHAR(255),
     instagram VARCHAR(255)
 );
+
+-- Hapus baris ini (DUPLIKAT):
+-- INSERT INTO profil (id, populasi, luas_wilayah) VALUES (1, 0, '0 m2');
+
+-- Gunakan INSERT ... ON DUPLICATE KEY UPDATE atau INSERT IGNORE
+INSERT INTO profil (id, sejarah, visi, misi, populasi, luas_wilayah) 
+VALUES (1, 'Sejarah desa...', 'Visi...', 'Misi...', 1890, '54.482.300 m²')
+ON DUPLICATE KEY UPDATE 
+    sejarah = 'Sejarah desa...', 
+    visi = 'Visi...', 
+    misi = 'Misi...', 
+    populasi = 1890, 
+    luas_wilayah = '54.482.300 m²';
