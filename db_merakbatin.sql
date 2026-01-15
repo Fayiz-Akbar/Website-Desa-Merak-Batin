@@ -124,3 +124,9 @@ ON DUPLICATE KEY UPDATE
     misi = 'Misi...', 
     populasi = 1890, 
     luas_wilayah = '54.482.300 m²';
+
+ALTER TABLE apb_desa 
+    MODIFY COLUMN jenis ENUM('Pendapatan', 'Belanja', 'Pembiayaan') NOT NULL,
+    CHANGE COLUMN keterangan rincian VARCHAR(255),
+    CHANGE COLUMN jumlah anggaran BIGINT NOT NULL,
+    ADD COLUMN realisasi BIGINT NOT NULL AFTER anggaran;

@@ -5,40 +5,70 @@ require '../config/db.php';
 $sukses = "";
 $error = "";
 
-// --- LOGIKA TAMBAH KATEGORI ---
-if (isset($_POST['tambah_kategori'])) {
-    $nama_kategori = mysqli_real_escape_string($conn, $_POST['nama_kategori']);
-    $query_kat = "INSERT INTO kategori_berita (nama_kategori) VALUES ('$nama_kategori')";
-    if (mysqli_query($conn, $query_kat)) {
-        $sukses = "Kategori baru berhasil ditambahkan!";
-    }
-}
-
-// --- LOGIKA TAMBAH BERITA ---
+// Tambah Berita
 if (isset($_POST['tambah'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
-    $id_kategori = (int)$_POST['id_kategori'];
-    $isi = mysqli_real_escape_string($conn, $_POST['isi_berita']);
-
-    $gambar = $_FILES['gambar']['name'];
-    $tmp_name = $_FILES['gambar']['tmp_name'];
-    $ekstensi_file = strtolower(pathinfo($gambar, PATHINFO_EXTENSION));
-
-    $nama_gambar_baru = uniqid() . "." . $ekstensi_file;
-    move_uploaded_file($tmp_name, '../assets/img/berita/' . $nama_gambar_baru);
-
-    $query = "INSERT INTO berita (id_kategori, judul, isi_berita, gambar) VALUES ($id_kategori, '$judul', '$isi', '$nama_gambar_baru')";
-    if (mysqli_query($conn, $query)) {
-        $sukses = "Berita berhasil dipublikasikan!";
+    $kategori = $_POST['kategori'];
+    $isi = mysqli_real_escape_string($conn, $_POST['isi']);
+    $tanggal = date('Y-m-d');
+    
+    // Upload gambar
+    $foto = "";
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $target_dir = "../assets/img/berita/";
+        
+        // Buat folder jika belum ada
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        
+        $file_extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+        $new_filename = uniqid() . '.' . $file_extension;
+        $target_file = $target_dir . $new_filename;
+        
+        // Validasi tipe file
+        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
+        if (in_array($file_extension, $allowed_types)) {
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $target_file)) {
+                $foto = $new_filename;
+            } else {
+                $error = "Gagal upload gambar: " . error_get_last()['message'];
+            }
+        } else {
+            $error = "Tipe file tidak diizinkan. Gunakan JPG, PNG, atau GIF.";
+        }
+    }
+    
+    if (empty($error)) {
+        $query = "INSERT INTO berita (judul, kategori, foto, isi, tanggal) 
+                  VALUES ('$judul', '$kategori', '$foto', '$isi', '$tanggal')";
+        
+        if (mysqli_query($conn, $query)) {
+            $sukses = "Berita berhasil dipublikasikan!";
+        } else {
+            $error = "Gagal menyimpan berita: " . mysqli_error($conn);
+        }
     }
 }
 
-// Ambil Kategori & Daftar Berita
-$categories = mysqli_query($conn, "SELECT * FROM kategori_berita ORDER BY nama_kategori ASC");
-$news_list = mysqli_query($conn, "SELECT berita.*, kategori_berita.nama_kategori 
-                                  FROM berita 
-                                  LEFT JOIN kategori_berita ON berita.id_kategori = kategori_berita.id 
-                                  ORDER BY tgl_posting DESC");
+// Hapus Berita
+if (isset($_GET['hapus'])) {
+    $id = (int)$_GET['hapus'];
+    
+    // Hapus file foto
+    $result = mysqli_query($conn, "SELECT foto FROM berita WHERE id = $id");
+    if ($row = mysqli_fetch_assoc($result)) {
+        if (!empty($row['foto']) && file_exists("../assets/img/berita/" . $row['foto'])) {
+            unlink("../assets/img/berita/" . $row['foto']);
+        }
+    }
+    
+    mysqli_query($conn, "DELETE FROM berita WHERE id = $id");
+    header("Location: manage-berita.php");
+    exit;
+}
+
+$data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC");
 ?>
 
 <!DOCTYPE html>
@@ -121,7 +151,7 @@ $news_list = mysqli_query($conn, "SELECT berita.*, kategori_berita.nama_kategori
         }
         .nav-link i { font-size: 1.2rem; margin-right: 12px; }
         .nav-link:hover { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
-        .nav-link.active { background: var(--active-blue); color: #fff !important; }
+        .nav-link.active { background: var(--active-blue); color: #fff; }
 
         /* Logout Section */
         .logout-section { 
@@ -142,10 +172,25 @@ $news_list = mysqli_query($conn, "SELECT berita.*, kategori_berita.nama_kategori
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 20px; }
-            .mobile-header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 999; }
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; }
+        }
+        
+        .card-premium {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+            background: #fff;
         }
 
-        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .berita-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .form-label { font-weight: 600; color: #4b5563; font-size: 0.85rem; }
+        .form-control, .form-select { padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; }
     </style>
 </head>
 <body>
@@ -177,69 +222,105 @@ $news_list = mysqli_query($conn, "SELECT berita.*, kategori_berita.nama_kategori
     </nav>
 
     <main class="main-content w-100">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold">Manajemen Berita</h3>
-            <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalKategori">
-                <i class="bi bi-plus-circle me-2"></i> Kategori
-            </button>
+        <div class="mb-5">
+            <h3 class="fw-bold mb-1">Manajemen Berita</h3>
+            <p class="text-muted">Publikasikan berita dan informasi terkini Desa Merak Batin.</p>
         </div>
 
-        <?php if($sukses): ?> <div class="alert alert-success border-0 shadow-sm rounded-3"><?php echo $sukses; ?></div> <?php endif; ?>
+        <?php if($sukses): ?>
+            <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">
+                <i class="bi bi-check-circle-fill me-2"></i> <?php echo $sukses; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if($error): ?>
+            <div class="alert alert-danger border-0 rounded-4 shadow-sm mb-4">
+                <i class="bi bi-exclamation-circle-fill me-2"></i> <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
 
         <div class="row g-4">
             <div class="col-lg-5">
-                <div class="card card-custom p-4">
+                <div class="card card-premium p-4">
+                    <h5 class="fw-bold mb-4">Tulis Berita Baru</h5>
                     <form action="" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-secondary">JUDUL</label>
+                            <label class="form-label">JUDUL ARTIKEL</label>
                             <input type="text" name="judul" class="form-control" placeholder="Judul artikel" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-secondary">KATEGORI</label>
-                            <select name="id_kategori" class="form-select" required>
-                                <option value="" disabled selected>Pilih Kategori</option>
-                                <?php while($cat = mysqli_fetch_assoc($categories)): ?>
-                                    <option value="<?php echo $cat['id']; ?>"><?php echo $cat['nama_kategori']; ?></option>
-                                <?php endwhile; ?>
+                            <label class="form-label">KATEGORI</label>
+                            <select name="kategori" class="form-select">
+                                <option value="Artikel">Artikel</option>
+                                <option value="Pengumuman">Pengumuman</option>
+                                <option value="Kegiatan">Kegiatan</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-secondary">GAMBAR</label>
-                            <input type="file" name="gambar" class="form-control" required>
+                            <label class="form-label">GAMBAR</label>
+                            <input type="file" name="foto" class="form-control" accept="image/*">
+                            <small class="text-muted">Format: JPG, PNG, GIF (Maks 2MB)</small>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label fw-bold small text-secondary">ISI BERITA</label>
-                            <textarea name="isi_berita" class="form-control" rows="6" required></textarea>
+                            <label class="form-label">ISI BERITA</label>
+                            <textarea name="isi" class="form-control" rows="10" required></textarea>
                         </div>
-                        <button type="submit" name="tambah" class="btn btn-primary w-100 fw-bold py-2">Terbitkan</button>
+                        <button type="submit" name="tambah" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">
+                            <i class="bi bi-send me-2"></i> Publikasikan
+                        </button>
                     </form>
                 </div>
             </div>
 
             <div class="col-lg-7">
-                <div class="card card-custom p-4">
+                <div class="card card-premium p-4">
+                    <h5 class="fw-bold mb-4">Berita yang Dipublikasikan</h5>
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr class="small text-secondary">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr class="small text-secondary fw-bold">
+                                    <th>FOTO</th>
                                     <th>BERITA</th>
                                     <th>KATEGORI</th>
-                                    <th>AKSI</th>
+                                    <th class="text-center">AKSI</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while($row = mysqli_fetch_assoc($news_list)): ?>
+                                <?php while($row = mysqli_fetch_assoc($data_berita)): ?>
                                 <tr>
                                     <td>
-                                        <div class="fw-bold"><?php echo $row['judul']; ?></div>
-                                        <small class="text-muted"><?php echo date('d/m/Y', strtotime($row['tgl_posting'])); ?></small>
+                                        <?php if(!empty($row['foto']) && file_exists("../assets/img/berita/" . $row['foto'])): ?>
+                                            <img src="../assets/img/berita/<?php echo $row['foto']; ?>" class="berita-thumbnail" alt="Foto Berita">
+                                        <?php else: ?>
+                                            <div class="berita-thumbnail bg-secondary d-flex align-items-center justify-content-center text-white">
+                                                <i class="bi bi-image fs-4"></i>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
-                                    <td><span class="badge bg-light text-primary"><?php echo $row['nama_kategori']; ?></span></td>
                                     <td>
-                                        <a href="?hapus=<?php echo $row['id']; ?>" class="text-danger" onclick="return confirm('Hapus?')"><i class="bi bi-trash"></i></a>
+                                        <div class="fw-bold text-dark"><?php echo htmlspecialchars($row['judul']); ?></div>
+                                        <div class="small text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            <?php echo date('d/m/Y', strtotime($row['tanggal'])); ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+                                            <?php echo $row['kategori']; ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="?hapus=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill" onclick="return confirm('Hapus berita ini?')">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </a>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
+                                <?php if(mysqli_num_rows($data_berita) == 0): ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5 text-muted">Belum ada berita yang dipublikasikan.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -249,39 +330,15 @@ $news_list = mysqli_query($conn, "SELECT berita.*, kategori_berita.nama_kategori
     </main>
 </div>
 
-<div class="modal fade" id="modalKategori" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header">
-                <h5 class="fw-bold">Tambah Kategori</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="" method="POST">
-                <div class="modal-body">
-                    <input type="text" name="nama_kategori" class="form-control" placeholder="Nama Kategori Baru" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="tambah_kategori" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const toggleBtn = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
-    
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth < 992 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-            sidebar.classList.remove('active');
-        }
-    });
+    if(toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
 </script>
 </body>
 </html>
