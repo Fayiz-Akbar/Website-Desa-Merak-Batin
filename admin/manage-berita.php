@@ -2,73 +2,55 @@
 require 'auth_check.php';
 require '../config/db.php';
 
-$sukses = "";
-$error = "";
+$sukses = ""; $error = "";
 
-// Tambah Berita
-if (isset($_POST['tambah'])) {
+// --- LOGIKA KATEGORI ---
+if (isset($_POST['tambah_kategori'])) {
+    $nama_kat = mysqli_real_escape_string($conn, $_POST['nama_kategori']);
+    mysqli_query($conn, "INSERT INTO kategori_berita (nama_kategori) VALUES ('$nama_kat')");
+    $sukses = "Kategori berhasil ditambah!";
+}
+
+if (isset($_GET['hapus_kategori'])) {
+    $id_kat = (int)$_GET['hapus_kategori'];
+    mysqli_query($conn, "DELETE FROM kategori_berita WHERE id = $id_kat");
+    header("Location: manage-berita.php"); exit;
+}
+
+// --- LOGIKA BERITA (Tambah & Edit) ---
+if (isset($_POST['tambah_berita']) || isset($_POST['edit_berita'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
-    $kategori = $_POST['kategori'];
-    $isi = mysqli_real_escape_string($conn, $_POST['isi']);
-    $tanggal = date('Y-m-d');
+    $id_kategori = (int)$_POST['id_kategori'];
+    $isi = mysqli_real_escape_string($conn, $_POST['isi_berita']);
     
-    // Upload gambar
     $foto = "";
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
         $target_dir = "../assets/img/berita/";
-        
-        // Buat folder jika belum ada
-        if (!file_exists($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-        
-        $file_extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-        $new_filename = uniqid() . '.' . $file_extension;
-        $target_file = $target_dir . $new_filename;
-        
-        // Validasi tipe file
-        $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
-        if (in_array($file_extension, $allowed_types)) {
-            if (move_uploaded_file($_FILES['foto']['tmp_name'], $target_file)) {
-                $foto = $new_filename;
-            } else {
-                $error = "Gagal upload gambar: " . error_get_last()['message'];
-            }
-        } else {
-            $error = "Tipe file tidak diizinkan. Gunakan JPG, PNG, atau GIF.";
-        }
+        $new_filename = uniqid() . '.' . strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+        move_uploaded_file($_FILES['foto']['tmp_name'], $target_dir . $new_filename);
+        $foto = $new_filename;
     }
-    
-    if (empty($error)) {
-        $query = "INSERT INTO berita (judul, kategori, foto, isi, tanggal) 
-                  VALUES ('$judul', '$kategori', '$foto', '$isi', '$tanggal')";
-        
-        if (mysqli_query($conn, $query)) {
-            $sukses = "Berita berhasil dipublikasikan!";
-        } else {
-            $error = "Gagal menyimpan berita: " . mysqli_error($conn);
-        }
+
+    if (isset($_POST['tambah_berita'])) {
+        mysqli_query($conn, "INSERT INTO berita (judul, id_kategori, gambar, isi_berita, tgl_posting) VALUES ('$judul', $id_kategori, '$foto', '$isi', NOW())");
+        $sukses = "Berita berhasil terbit!";
+    } else {
+        $id = (int)$_POST['id_berita'];
+        if ($foto != "") mysqli_query($conn, "UPDATE berita SET gambar = '$foto' WHERE id = $id");
+        mysqli_query($conn, "UPDATE berita SET judul='$judul', id_kategori=$id_kategori, isi_berita='$isi' WHERE id=$id");
+        $sukses = "Berita diperbarui!";
     }
 }
 
 // Hapus Berita
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
-    
-    // Hapus file foto
-    $result = mysqli_query($conn, "SELECT foto FROM berita WHERE id = $id");
-    if ($row = mysqli_fetch_assoc($result)) {
-        if (!empty($row['foto']) && file_exists("../assets/img/berita/" . $row['foto'])) {
-            unlink("../assets/img/berita/" . $row['foto']);
-        }
-    }
-    
     mysqli_query($conn, "DELETE FROM berita WHERE id = $id");
-    header("Location: manage-berita.php");
-    exit;
+    header("Location: manage-berita.php"); exit;
 }
 
-$data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC");
+$data_berita = mysqli_query($conn, "SELECT b.*, k.nama_kategori FROM berita b LEFT JOIN kategori_berita k ON b.id_kategori = k.id ORDER BY b.tgl_posting DESC");
+$categories = mysqli_query($conn, "SELECT * FROM kategori_berita ORDER BY nama_kategori ASC");
 ?>
 
 <!DOCTYPE html>
@@ -80,12 +62,13 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+
     <style>
         :root { --sidebar-bg: #1a1d20; --active-blue: #0d6efd; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; margin: 0; }
 
-        /* Sidebar Styling */
+        /* SIDEBAR SAMA SEPERTI INDEX.PHP */
         .sidebar {
             width: 280px;
             background: var(--sidebar-bg);
@@ -120,20 +103,13 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
             scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
         }
         
-        .sidebar-menu::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .sidebar-menu::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .sidebar-menu::-webkit-scrollbar-thumb {
+        .sidebar-menu::-webkit-scrollbar { width: 6px; }
+        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-menu::-webkit-scrollbar-thumb { 
             background-color: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
         }
-        
-        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+        .sidebar-menu::-webkit-scrollbar-thumb:hover { 
             background-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -150,10 +126,9 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
             text-decoration: none;
         }
         .nav-link i { font-size: 1.2rem; margin-right: 12px; }
-        .nav-link:hover { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
+        .nav-link:hover, .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
         .nav-link.active { background: var(--active-blue); color: #fff; }
 
-        /* Logout Section */
         .logout-section { 
             margin-top: auto; 
             padding-top: 20px; 
@@ -164,33 +139,22 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
         .logout-link { color: #ea868f !important; }
         .logout-link:hover { background: rgba(234, 134, 143, 0.1); }
 
-        /* Layout Responsif */
-        .main-content { margin-left: 280px; padding: 40px; transition: 0.3s; }
+        .main-content { margin-left: 280px; padding: 40px; }
         .mobile-header { display: none; background: #fff; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
 
         @media (max-width: 991.98px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 20px; }
-            .mobile-header { display: flex; justify-content: space-between; align-items: center; }
-        }
-        
-        .card-premium {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
-            background: #fff;
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 999; }
         }
 
-        .berita-thumbnail {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 12px;
-        }
+        .card-premium { border: none; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: #fff; }
 
-        .form-label { font-weight: 600; color: #4b5563; font-size: 0.85rem; }
-        .form-control, .form-select { padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; }
+        /* FIX LINK & IMAGE POPUP DI MODAL */
+        :root { --ck-z-modal: 1060 !important; }
+        .ck-editor__editable { min-height: 400px; }
+        .berita-img { width: 80px; height: 50px; object-fit: cover; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -205,8 +169,8 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
         <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i> Merak Batin</div>
         
         <ul class="sidebar-menu">
-            <li><a href="index.php" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
-            <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house-door"></i> Profil Desa</a></li>
+            <li><a href="index.php" class="nav-link"><i class="bi bi-house-door"></i> Dashboard</a></li>
+            <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house"></i> Profil Desa</a></li>
             <li><a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a></li>
             <li><a href="manage-berita.php" class="nav-link active"><i class="bi bi-journal-text"></i> Kelola Berita</a></li>
             <li><a href="manage-apbdesa.php" class="nav-link"><i class="bi bi-cash-stack"></i> APB Desa</a></li>
@@ -222,112 +186,90 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
     </nav>
 
     <main class="main-content w-100">
-        <div class="mb-5">
-            <h3 class="fw-bold mb-1">Manajemen Berita</h3>
-            <p class="text-muted">Publikasikan berita dan informasi terkini Desa Merak Batin.</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">Manajemen Konten</h3>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalKategori">Kategori</button>
+                <button class="btn btn-primary rounded-pill px-4 shadow" data-bs-toggle="modal" data-bs-target="#modalBerita">Tulis Berita</button>
+            </div>
         </div>
 
-        <?php if($sukses): ?>
-            <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">
-                <i class="bi bi-check-circle-fill me-2"></i> <?php echo $sukses; ?>
-            </div>
-        <?php endif; ?>
+        <?php if($sukses): ?> <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4"><?php echo $sukses; ?></div> <?php endif; ?>
 
-        <?php if($error): ?>
-            <div class="alert alert-danger border-0 rounded-4 shadow-sm mb-4">
-                <i class="bi bi-exclamation-circle-fill me-2"></i> <?php echo $error; ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="row g-4">
-            <div class="col-lg-5">
-                <div class="card card-premium p-4">
-                    <h5 class="fw-bold mb-4">Tulis Berita Baru</h5>
-                    <form action="" method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label class="form-label">JUDUL ARTIKEL</label>
-                            <input type="text" name="judul" class="form-control" placeholder="Judul artikel" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">KATEGORI</label>
-                            <select name="kategori" class="form-select">
-                                <option value="Artikel">Artikel</option>
-                                <option value="Pengumuman">Pengumuman</option>
-                                <option value="Kegiatan">Kegiatan</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">GAMBAR</label>
-                            <input type="file" name="foto" class="form-control" accept="image/*">
-                            <small class="text-muted">Format: JPG, PNG, GIF (Maks 2MB)</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">ISI BERITA</label>
-                            <textarea name="isi" class="form-control" rows="10" required></textarea>
-                        </div>
-                        <button type="submit" name="tambah" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">
-                            <i class="bi bi-send me-2"></i> Publikasikan
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="col-lg-7">
-                <div class="card card-premium p-4">
-                    <h5 class="fw-bold mb-4">Berita yang Dipublikasikan</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr class="small text-secondary fw-bold">
-                                    <th>FOTO</th>
-                                    <th>BERITA</th>
-                                    <th>KATEGORI</th>
-                                    <th class="text-center">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while($row = mysqli_fetch_assoc($data_berita)): ?>
-                                <tr>
-                                    <td>
-                                        <?php if(!empty($row['foto']) && file_exists("../assets/img/berita/" . $row['foto'])): ?>
-                                            <img src="../assets/img/berita/<?php echo $row['foto']; ?>" class="berita-thumbnail" alt="Foto Berita">
-                                        <?php else: ?>
-                                            <div class="berita-thumbnail bg-secondary d-flex align-items-center justify-content-center text-white">
-                                                <i class="bi bi-image fs-4"></i>
-                                            </div>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="fw-bold text-dark"><?php echo htmlspecialchars($row['judul']); ?></div>
-                                        <div class="small text-muted">
-                                            <i class="bi bi-calendar3 me-1"></i>
-                                            <?php echo date('d/m/Y', strtotime($row['tanggal'])); ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
-                                            <?php echo $row['kategori']; ?>
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="?hapus=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill" onclick="return confirm('Hapus berita ini?')">
-                                            <i class="bi bi-trash3-fill"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                                <?php if(mysqli_num_rows($data_berita) == 0): ?>
-                                    <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted">Belum ada berita yang dipublikasikan.</td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="card card-premium p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr class="small text-secondary fw-bold"><th>FOTO</th><th>JUDUL</th><th>AKSI</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php while($row = mysqli_fetch_assoc($data_berita)): ?>
+                        <tr>
+                            <td><img src="../assets/img/berita/<?php echo $row['gambar']; ?>" class="berita-img"></td>
+                            <td><div class="fw-bold"><?php echo $row['judul']; ?></div><small class="text-muted"><?php echo $row['nama_kategori']; ?></small></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-warning border-0" onclick='editBerita(<?php echo json_encode($row); ?>)'><i class="bi bi-pencil-square"></i></button>
+                                <a href="?hapus=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Hapus?')"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
+</div>
+
+<div class="modal fade" id="modalKategori" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header"><h5 class="fw-bold mb-0">Kelola Kategori</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <form action="" method="POST" class="mb-4">
+                    <label class="form-label small fw-bold">TAMBAH BARU</label>
+                    <div class="input-group">
+                        <input type="text" name="nama_kategori" class="form-control" placeholder="Nama kategori..." required>
+                        <button type="submit" name="tambah_kategori" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+                <label class="form-label small fw-bold">DAFTAR KATEGORI</label>
+                <ul class="list-group list-group-flush">
+                    <?php mysqli_data_seek($categories, 0); while($cat = mysqli_fetch_assoc($categories)): ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                            <?php echo $cat['nama_kategori']; ?>
+                            <a href="?hapus_kategori=<?php echo $cat['id']; ?>" class="text-danger small" onclick="return confirm('Hapus kategori ini?')"><i class="bi bi-x-circle-fill"></i></a>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBerita" tabindex="-1">
+    <div class="modal-dialog modal-xl"><div class="modal-content">
+        <form action="" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="id_berita" id="id_berita">
+            <div class="modal-header"><h5 class="fw-bold" id="modalTitle">Tulis Berita Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><div class="row g-4">
+                <div class="col-lg-9">
+                    <input type="text" name="judul" id="judul" class="form-control form-control-lg border-0 bg-light mb-4" placeholder="Judul Berita" required>
+                    <textarea name="isi_berita" id="editor"></textarea>
+                </div>
+                <div class="col-lg-3"><div class="p-3 bg-light rounded-4">
+                    <label class="form-label fw-bold small">KATEGORI</label>
+                    <select name="id_kategori" id="id_kategori" class="form-select mb-4" required>
+                        <?php mysqli_data_seek($categories, 0); while($cat = mysqli_fetch_assoc($categories)): ?>
+                            <option value="<?php echo $cat['id']; ?>"><?php echo $cat['nama_kategori']; ?></option>
+                        <?php endwhile; ?>
+                    </select>
+                    <label class="form-label fw-bold small">FOTO SAMPUL</label>
+                    <input type="file" name="foto" class="form-control mb-4">
+                    <button type="submit" name="tambah_berita" id="btnSubmit" class="btn btn-primary w-100 py-2 fw-bold">Publikasikan</button>
+                </div></div>
+            </div></div>
+        </form>
+    </div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -338,6 +280,23 @@ $data_berita = mysqli_query($conn, "SELECT * FROM berita ORDER BY tanggal DESC")
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
         });
+    }
+
+    let editorInstance;
+    ClassicEditor.create(document.querySelector('#editor'), {
+        ckfinder: { uploadUrl: 'upload_image.php' }, // Mesin pengolah gambar
+        toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', 'undo', 'redo' ]
+    }).then(editor => { editorInstance = editor; });
+
+    function editBerita(data) {
+        document.getElementById('modalTitle').innerText = "Edit Berita";
+        document.getElementById('btnSubmit').innerText = "Simpan Perubahan";
+        document.getElementById('btnSubmit').name = "edit_berita";
+        document.getElementById('id_berita').value = data.id;
+        document.getElementById('judul').value = data.judul;
+        document.getElementById('id_kategori').value = data.id_kategori;
+        editorInstance.setData(data.isi_berita);
+        new bootstrap.Modal(document.getElementById('modalBerita')).show();
     }
 </script>
 </body>
