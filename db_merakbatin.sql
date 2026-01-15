@@ -130,3 +130,28 @@ ALTER TABLE apb_desa
     CHANGE COLUMN keterangan rincian VARCHAR(255),
     CHANGE COLUMN jumlah anggaran BIGINT NOT NULL,
     ADD COLUMN realisasi BIGINT NOT NULL AFTER anggaran;
+
+CREATE TABLE IF NOT EXISTS kategori_potensi (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_kategori VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS potensi_desa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_potensi VARCHAR(255) NOT NULL,
+    id_kategori INT,
+    deskripsi TEXT,
+    gambar VARCHAR(255),
+    lokasi_maps TEXT,
+    tgl_input TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_kategori) REFERENCES kategori_potensi(id) ON DELETE SET NULL
+);
+DROP TABLE IF EXISTS layanan;
+CREATE TABLE layanan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_layanan VARCHAR(255) NOT NULL,
+    persyaratan TEXT,
+    prosedur TEXT,
+    biaya VARCHAR(100) DEFAULT 'Gratis',
+    estimasi_waktu VARCHAR(100)
+)
