@@ -5,7 +5,7 @@ require '../config/db.php';
 $sukses = "";
 $error = "";
 
-// 1. Logika Tambah Data (Wajib menyertakan realisasi agar tidak error)
+// 1. LOGIKA TAMBAH DATA
 if (isset($_POST['tambah'])) {
     $tahun = $_POST['tahun'];
     $jenis = $_POST['jenis'];
@@ -15,21 +15,36 @@ if (isset($_POST['tambah'])) {
 
     $query = "INSERT INTO apb_desa (tahun, jenis, rincian, anggaran, realisasi) 
               VALUES ('$tahun', '$jenis', '$rincian', $anggaran, $realisasi)";
-    
-    if (mysqli_query($conn, $query)) {
-        $sukses = "Data transparansi berhasil disimpan!";
-    } else {
-        $error = "Gagal menyimpan data: " . mysqli_error($conn);
-    }
+    if (mysqli_query($conn, $query)) { $sukses = "Data berhasil disimpan!"; }
 }
 
-// 2. Logika Hapus Data
+// 2. LOGIKA EDIT DATA
+if (isset($_POST['edit_apb'])) {
+    $id = (int)$_POST['id_apb'];
+    $tahun = $_POST['tahun'];
+    $jenis = $_POST['jenis'];
+    $rincian = mysqli_real_escape_string($conn, $_POST['rincian']);
+    $anggaran = (int)$_POST['anggaran'];
+    $realisasi = (int)$_POST['realisasi'];
+
+    $query = "UPDATE apb_desa SET tahun='$tahun', jenis='$jenis', rincian='$rincian', anggaran=$anggaran, realisasi=$realisasi WHERE id=$id";
+    if (mysqli_query($conn, $query)) { $sukses = "Data berhasil diperbarui!"; }
+}
+
+// 3. LOGIKA HAPUS
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
     mysqli_query($conn, "DELETE FROM apb_desa WHERE id = $id");
-    header("Location: manage-apbdesa.php");
-    exit;
+    header("Location: manage-apbdesa.php"); exit;
 }
+
+// 4. HITUNG RINGKASAN ANGGARAN
+$q_total = mysqli_query($conn, "SELECT 
+    SUM(CASE WHEN jenis = 'Pendapatan' THEN realisasi ELSE 0 END) as total_pendapatan,
+    SUM(CASE WHEN jenis = 'Belanja' THEN realisasi ELSE 0 END) as total_belanja
+    FROM apb_desa");
+$res_total = mysqli_fetch_assoc($q_total);
+$sisa_anggaran = $res_total['total_pendapatan'] - $res_total['total_belanja'];
 
 $data_apb = mysqli_query($conn, "SELECT * FROM apb_desa ORDER BY tahun DESC, jenis ASC");
 ?>
@@ -45,10 +60,10 @@ $data_apb = mysqli_query($conn, "SELECT * FROM apb_desa ORDER BY tahun DESC, jen
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <style>
-        :root { --sidebar-bg: #111827; --active-blue: #0d6efd; }
+        :root { --sidebar-bg: #1a1d20; --active-blue: #0d6efd; }
         body { font-family: 'Inter', sans-serif; background-color: #f9fafb; margin: 0; }
 
-        /* SIDEBAR IDENTIK GAMBAR */
+        /* SIDEBAR SAMA SEPERTI INDEX.PHP */
         .sidebar {
             width: 280px;
             background: var(--sidebar-bg);
@@ -56,177 +71,229 @@ $data_apb = mysqli_query($conn, "SELECT * FROM apb_desa ORDER BY tahun DESC, jen
             position: fixed;
             display: flex;
             flex-direction: column;
-            padding: 25px 0;
-            z-index: 1000;
+            padding: 25px 15px;
             transition: all 0.3s;
+            z-index: 1000;
+            overflow: hidden;
         }
 
         .sidebar-brand { 
             color: var(--active-blue); 
-            font-weight: 800; 
-            font-size: 1.5rem; 
-            padding: 0 25px 25px; 
-            border-bottom: 1px solid #1f2937; 
+            font-weight: 700; 
+            font-size: 1.4rem; 
+            padding-bottom: 30px; 
+            border-bottom: 1px solid #2d3238; 
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            flex-shrink: 0;
         }
 
-        .sidebar-menu { flex-grow: 1; list-style: none; padding: 0 15px; overflow-y: auto; }
+        .sidebar-menu { 
+            flex-grow: 1; 
+            list-style: none; 
+            padding: 0; 
+            margin: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
         
+        .sidebar-menu::-webkit-scrollbar { width: 6px; }
+        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-menu::-webkit-scrollbar-thumb { 
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .sidebar-menu::-webkit-scrollbar-thumb:hover { 
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
         .nav-link {
-            color: #9ca3af;
+            color: #adb5bd;
             padding: 12px 18px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             transition: 0.3s;
             font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
             text-decoration: none;
-            margin-bottom: 5px;
         }
-        .nav-link i { font-size: 1.3rem; margin-right: 15px; }
-        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
-        .nav-link.active { background: var(--active-blue); color: #fff !important; }
+        .nav-link i { font-size: 1.2rem; margin-right: 12px; }
+        .nav-link:hover, .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
+        .nav-link.active { background: var(--active-blue); color: #fff; }
 
-        /* LOGOUT TETAP DI BAWAH */
-        .logout-section { margin-top: auto; padding: 20px 15px; border-top: 1px solid #1f2937; }
-        .logout-link { color: #f87171 !important; }
+        .logout-section { 
+            margin-top: auto; 
+            padding-top: 20px; 
+            border-top: 1px solid #2d3238;
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+        }
+        .logout-link { color: #ea868f !important; }
+        .logout-link:hover { background: rgba(234, 134, 143, 0.1); }
 
-        /* MAIN CONTENT */
-        .main-content { margin-left: 280px; padding: 40px; transition: 0.3s; }
-        .card-premium { border: none; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: #fff; }
-        
-        .progress { height: 6px; border-radius: 10px; background-color: #f1f5f9; }
-        .form-label { font-weight: 600; color: #4b5563; font-size: 0.85rem; }
-        .form-control, .form-select { padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; }
+        .main-content { margin-left: 280px; padding: 40px; }
+        .mobile-header { display: none; background: #fff; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
 
         @media (max-width: 991.98px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 20px; }
-            .mobile-header { display: flex; justify-content: space-between; padding: 15px; background: #fff; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 999; }
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 999; }
         }
+
+        .card-premium { border: none; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: #fff; }
+        .form-control, .form-select { border-radius: 10px; padding: 10px 15px; border: 1px solid #e5e7eb; }
+        
+        .stat-card { border-radius: 15px; padding: 20px; border: none; }
+        .progress { height: 6px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div class="mobile-header d-lg-none">
-    <span class="fw-bold text-primary"><i class="bi bi-geo-alt-fill"></i> Merak Batin</span>
+<div class="mobile-header">
+    <span class="fw-bold text-primary">Admin Merak Batin</span>
     <button class="btn btn-primary" id="sidebarToggle"><i class="bi bi-list"></i></button>
 </div>
 
 <div class="d-flex">
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i><span>Merak Batin</span></div>
-        <div class="sidebar-menu">
-            <a href="index.php" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-            <a href="manage-profil.php" class="nav-link"><i class="bi bi-house"></i> Profil Desa</a>
-            <a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a>
-            <a href="manage-berita.php" class="nav-link"><i class="bi bi-journal-text"></i> Kelola Berita</a>
-            <a href="manage-apbdesa.php" class="nav-link active"><i class="bi bi-wallet2"></i> APB Desa</a>
-            <a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a>
-            <a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a>
-            <a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a>
-            <a href="manage-kontak.php" class="nav-link"><i class="bi bi-telephone"></i> Kontak</a>
-        </div>
+        <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i> Merak Batin</div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="index.php" class="nav-link"><i class="bi bi-house-door"></i> Dashboard</a></li>
+            <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house"></i> Profil Desa</a></li>
+            <li><a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a></li>
+            <li><a href="manage-berita.php" class="nav-link"><i class="bi bi-journal-text"></i> Kelola Berita</a></li>
+            <li><a href="manage-apbdesa.php" class="nav-link active"><i class="bi bi-cash-stack"></i> APB Desa</a></li>
+            <li><a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a></li>
+            <li><a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a></li>
+            <li><a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a></li>
+            <li><a href="manage-kontak.php" class="nav-link"><i class="bi bi-telephone"></i> Kontak</a></li>
+        </ul>
+
         <div class="logout-section">
             <a href="logout.php" class="nav-link logout-link"><i class="bi bi-box-arrow-right"></i> Keluar</a>
         </div>
     </nav>
 
     <main class="main-content w-100">
-        <div class="mb-5">
-            <h3 class="fw-bold mb-1">Transparansi Anggaran (APB Desa)</h3>
-            <p class="text-muted">Kelola rencana anggaran vs realisasi fisik di lapangan secara transparan.</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">Manajemen Transparansi APB Desa</h3>
+            <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                <i class="bi bi-plus-circle me-2"></i> Tambah Data
+            </button>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card bg-success text-white shadow-sm">
+                    <small class="opacity-75">Total Pendapatan Cair</small>
+                    <h4 class="fw-bold mb-0">Rp <?php echo number_format($res_total['total_pendapatan'], 0, ',', '.'); ?></h4>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card bg-warning text-dark shadow-sm">
+                    <small class="opacity-75">Total Belanja Terpakai</small>
+                    <h4 class="fw-bold mb-0">Rp <?php echo number_format($res_total['total_belanja'], 0, ',', '.'); ?></h4>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-card bg-primary text-white shadow-sm">
+                    <small class="opacity-75">Sisa Anggaran Desa</small>
+                    <h4 class="fw-bold mb-0">Rp <?php echo number_format($sisa_anggaran, 0, ',', '.'); ?></h4>
+                </div>
+            </div>
         </div>
 
         <?php if($sukses): ?> <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4"><?php echo $sukses; ?></div> <?php endif; ?>
 
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="card card-premium p-4">
-                    <h5 class="fw-bold mb-4">Input Anggaran</h5>
-                    <form action="" method="POST">
-                        <div class="mb-3">
-                            <label class="form-label">TAHUN</label>
-                            <input type="number" name="tahun" class="form-control" value="2026" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">JENIS</label>
-                            <select name="jenis" class="form-select" required>
-                                <option value="Pendapatan">Pendapatan (Uang Masuk)</option>
-                                <option value="Belanja">Belanja (Uang Keluar)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">RINCIAN KEGIATAN</label>
-                            <input type="text" name="rincian" class="form-control" placeholder="Contoh: Bantuan Dana Desa / Aspal Jalan" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">TARGET ANGGARAN (Rp)</label>
-                            <input type="number" name="anggaran" class="form-control" placeholder="Nilai yang direncanakan" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">REALISASI SAAT INI (Rp)</label>
-                            <input type="number" name="realisasi" class="form-control" placeholder="Uang yang sudah terpakai/cair" value="0" required>
-                        </div>
-                        <button type="submit" name="tambah" class="btn btn-primary w-100 fw-bold py-3 rounded-3 shadow-sm">
-                            <i class="bi bi-save me-2"></i> Simpan Data
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="col-lg-8">
-                <div class="card card-premium p-4">
-                    <h5 class="fw-bold mb-4">Ringkasan Transparansi</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr class="small text-secondary fw-bold">
-                                    <th>KEGIATAN</th>
-                                    <th>ANGGARAN & REALISASI</th>
-                                    <th>PROGRESS</th>
-                                    <th class="text-center">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while($row = mysqli_fetch_assoc($data_apb)): 
-                                    $persen = ($row['anggaran'] > 0) ? round(($row['realisasi'] / $row['anggaran']) * 100) : 0;
-                                ?>
-                                <tr>
-                                    <td>
-                                        <div class="fw-bold text-dark"><?php echo htmlspecialchars($row['rincian']); ?></div>
-                                        <span class="badge <?php echo ($row['jenis'] == 'Pendapatan') ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'; ?> border px-2 py-1 rounded-pill small mt-1"><?php echo $row['jenis']; ?></span>
-                                    </td>
-                                    <td>
-                                        <div class="small text-muted">Target: Rp <?php echo number_format($row['anggaran'], 0, ',', '.'); ?></div>
-                                        <div class="fw-bold text-primary">Cair: Rp <?php echo number_format($row['realisasi'], 0, ',', '.'); ?></div>
-                                    </td>
-                                    <td width="150">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="progress flex-grow-1">
-                                                <div class="progress-bar <?php echo ($row['jenis'] == 'Pendapatan') ? 'bg-success' : 'bg-warning'; ?>" style="width: <?php echo $persen; ?>%"></div>
-                                            </div>
-                                            <small class="fw-bold"><?php echo $persen; ?>%</small>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="?hapus=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill" onclick="return confirm('Hapus data ini?')">
-                                            <i class="bi bi-trash3-fill"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <div class="card card-premium p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr class="small text-secondary fw-bold">
+                            <th>RINCIAN & TAHUN</th>
+                            <th>JENIS</th>
+                            <th>ANGGARAN & REALISASI</th>
+                            <th>PROGRESS</th>
+                            <th class="text-center">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while($row = mysqli_fetch_assoc($data_apb)): 
+                            $persen = ($row['anggaran'] > 0) ? round(($row['realisasi'] / $row['anggaran']) * 100) : 0;
+                        ?>
+                        <tr>
+                            <td>
+                                <div class="fw-bold"><?php echo htmlspecialchars($row['rincian']); ?></div>
+                                <small class="text-muted">Tahun <?php echo $row['tahun']; ?></small>
+                            </td>
+                            <td><span class="badge <?php echo ($row['jenis'] == 'Pendapatan') ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'; ?> border px-3 py-2 rounded-pill"><?php echo $row['jenis']; ?></span></td>
+                            <td>
+                                <div class="small text-muted">Target: Rp <?php echo number_format($row['anggaran'], 0, ',', '.'); ?></div>
+                                <div class="fw-bold">Real: Rp <?php echo number_format($row['realisasi'], 0, ',', '.'); ?></div>
+                            </td>
+                            <td width="150">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1"><div class="progress-bar <?php echo ($row['jenis'] == 'Pendapatan') ? 'bg-success' : 'bg-warning'; ?>" style="width: <?php echo $persen; ?>%"></div></div>
+                                    <small class="fw-bold"><?php echo $persen; ?>%</small>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-warning border-0" onclick='editAPB(<?php echo json_encode($row); ?>)'><i class="bi bi-pencil-square"></i></button>
+                                <a href="?hapus=<?php echo $row['id']; ?>" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Hapus?')"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
+</div>
+
+<div class="modal fade" id="modalTambah" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="" method="POST">
+                <div class="modal-header border-0"><h5 class="fw-bold">Tambah Anggaran Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4 pt-0">
+                    <div class="row g-3">
+                        <div class="col-6"><label class="form-label small fw-bold">TAHUN</label><input type="number" name="tahun" class="form-control" value="2026" required></div>
+                        <div class="col-6"><label class="form-label small fw-bold">JENIS</label><select name="jenis" class="form-select"><option value="Pendapatan">Pendapatan</option><option value="Belanja">Belanja</option></select></div>
+                        <div class="col-12"><label class="form-label small fw-bold">RINCIAN KEGIATAN</label><input type="text" name="rincian" class="form-control" required></div>
+                        <div class="col-12"><label class="form-label small fw-bold">TARGET ANGGARAN (Rp)</label><input type="number" name="anggaran" class="form-control" required></div>
+                        <div class="col-12"><label class="form-label small fw-bold">REALISASI SAAT INI (Rp)</label><input type="number" name="realisasi" class="form-control" value="0" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0"><button type="submit" name="tambah" class="btn btn-primary w-100 py-2 fw-bold">Simpan Data</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEdit" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="" method="POST">
+                <input type="hidden" name="id_apb" id="edit_id">
+                <div class="modal-header border-0"><h5 class="fw-bold">Edit Data Anggaran</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4 pt-0">
+                    <div class="row g-3">
+                        <div class="col-6"><label class="form-label small fw-bold">TAHUN</label><input type="number" name="tahun" id="edit_tahun" class="form-control" required></div>
+                        <div class="col-6"><label class="form-label small fw-bold">JENIS</label><select name="jenis" id="edit_jenis" class="form-select"><option value="Pendapatan">Pendapatan</option><option value="Belanja">Belanja</option></select></div>
+                        <div class="col-12"><label class="form-label small fw-bold">RINCIAN KEGIATAN</label><input type="text" name="rincian" id="edit_rincian" class="form-control" required></div>
+                        <div class="col-12"><label class="form-label small fw-bold">TARGET ANGGARAN (Rp)</label><input type="number" name="anggaran" id="edit_anggaran" class="form-control" required></div>
+                        <div class="col-12"><label class="form-label small fw-bold">REALISASI SAAT INI (Rp)</label><input type="number" name="realisasi" id="edit_realisasi" class="form-control" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0"><button type="submit" name="edit_apb" class="btn btn-warning w-100 py-2 fw-bold">Simpan Perubahan</button></div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -234,7 +301,19 @@ $data_apb = mysqli_query($conn, "SELECT * FROM apb_desa ORDER BY tahun DESC, jen
     const toggleBtn = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     if(toggleBtn) {
-        toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('active'); });
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    function editAPB(data) {
+        document.getElementById('edit_id').value = data.id;
+        document.getElementById('edit_tahun').value = data.tahun;
+        document.getElementById('edit_jenis').value = data.jenis;
+        document.getElementById('edit_rincian').value = data.rincian;
+        document.getElementById('edit_anggaran').value = data.anggaran;
+        document.getElementById('edit_realisasi').value = data.realisasi;
+        new bootstrap.Modal(document.getElementById('modalEdit')).show();
     }
 </script>
 </body>
