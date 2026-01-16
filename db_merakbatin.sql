@@ -1,3 +1,20 @@
+-- DROP SEMUA TABEL (Jalankan ini dulu untuk reset database)
+DROP TABLE IF EXISTS unduhan;
+DROP TABLE IF EXISTS kategori_unduhan;
+DROP TABLE IF EXISTS potensi_desa;
+DROP TABLE IF EXISTS kategori_potensi;
+DROP TABLE IF EXISTS berita;
+DROP TABLE IF EXISTS kategori_berita;
+DROP TABLE IF EXISTS galeri;
+DROP TABLE IF EXISTS apb_desa;
+DROP TABLE IF EXISTS potensi_visual;
+DROP TABLE IF EXISTS layanan;
+DROP TABLE IF EXISTS perangkat_desa;
+DROP TABLE IF EXISTS kontak;
+DROP TABLE IF EXISTS profil;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS site_settings;
+
 -- 1. Membuat Database
 CREATE DATABASE IF NOT EXISTS db_merakbatin;
 USE db_merakbatin;
@@ -59,23 +76,17 @@ CREATE TABLE perangkat_desa (
     urutan INT DEFAULT 0 
 );
 
--- 7. Tabel unduhan (Pusat Dokumen PDF)
-CREATE TABLE unduhan (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nama_dokumen VARCHAR(255) NOT NULL,
-    deskripsi TEXT,
-    file_path VARCHAR(255) NOT NULL, 
-    tgl_upload DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- 8. Tabel layanan (Prosedur Administrasi)
+-- 7. Tabel layanan (Prosedur Administrasi)
 CREATE TABLE layanan (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    judul_layanan VARCHAR(255) NOT NULL, 
-    isi_prosedur TEXT NOT NULL
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_layanan VARCHAR(255) NOT NULL,
+    persyaratan TEXT,
+    prosedur TEXT,
+    biaya VARCHAR(100) DEFAULT 'Gratis',
+    estimasi_waktu VARCHAR(100)
 );
 
--- 9. Tabel potensi_visual (Wadah Kerja Arsitektur & Pertanian)
+-- 8. Tabel potensi_visual (Wadah Kerja Arsitektur & Pertanian)
 CREATE TABLE potensi_visual (
     id INT PRIMARY KEY AUTO_INCREMENT,
     judul_peta VARCHAR(255) NOT NULL,
@@ -84,16 +95,17 @@ CREATE TABLE potensi_visual (
     sumber ENUM('Arsitektur', 'Pertanian') NOT NULL
 );
 
--- 10. Tabel apb_desa (Transparansi Anggaran)
+-- 9. Tabel apb_desa (Transparansi Anggaran)
 CREATE TABLE apb_desa (
     id INT PRIMARY KEY AUTO_INCREMENT,
     tahun YEAR NOT NULL,
-    jenis ENUM('Pendapatan', 'Belanja') NOT NULL,
-    keterangan VARCHAR(255),
-    jumlah BIGINT NOT NULL
+    jenis ENUM('Pendapatan', 'Belanja', 'Pembiayaan') NOT NULL,
+    rincian VARCHAR(255),
+    anggaran BIGINT NOT NULL,
+    realisasi BIGINT NOT NULL
 );
 
--- 11. Tabel galeri
+-- 10. Tabel galeri
 CREATE TABLE galeri (
     id INT PRIMARY KEY AUTO_INCREMENT,
     judul_foto VARCHAR(255),
@@ -101,42 +113,13 @@ CREATE TABLE galeri (
     tgl_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 12. Tabel kontak
-CREATE TABLE kontak (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    alamat TEXT,
-    telepon VARCHAR(20),
-    whatsapp VARCHAR(20),
-    email VARCHAR(100),
-    facebook VARCHAR(255),
-    instagram VARCHAR(255)
-);
-
--- Hapus baris ini (DUPLIKAT):
--- INSERT INTO profil (id, populasi, luas_wilayah) VALUES (1, 0, '0 m2');
-
--- Gunakan INSERT ... ON DUPLICATE KEY UPDATE atau INSERT IGNORE
-INSERT INTO profil (id, sejarah, visi, misi, populasi, luas_wilayah) 
-VALUES (1, 'Sejarah desa...', 'Visi...', 'Misi...', 1890, '54.482.300 m²')
-ON DUPLICATE KEY UPDATE 
-    sejarah = 'Sejarah desa...', 
-    visi = 'Visi...', 
-    misi = 'Misi...', 
-    populasi = 1890, 
-    luas_wilayah = '54.482.300 m²';
-
-ALTER TABLE apb_desa 
-    MODIFY COLUMN jenis ENUM('Pendapatan', 'Belanja', 'Pembiayaan') NOT NULL,
-    CHANGE COLUMN keterangan rincian VARCHAR(255),
-    CHANGE COLUMN jumlah anggaran BIGINT NOT NULL,
-    ADD COLUMN realisasi BIGINT NOT NULL AFTER anggaran;
-
-CREATE TABLE IF NOT EXISTS kategori_potensi (
+-- 11. Tabel kategori_potensi & potensi_desa
+CREATE TABLE kategori_potensi (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama_kategori VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS potensi_desa (
+CREATE TABLE potensi_desa (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama_potensi VARCHAR(255) NOT NULL,
     id_kategori INT,
@@ -146,12 +129,53 @@ CREATE TABLE IF NOT EXISTS potensi_desa (
     tgl_input TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kategori) REFERENCES kategori_potensi(id) ON DELETE SET NULL
 );
-DROP TABLE IF EXISTS layanan;
-CREATE TABLE layanan (
+
+-- 12. Tabel kategori_unduhan & unduhan
+CREATE TABLE kategori_unduhan (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nama_layanan VARCHAR(255) NOT NULL,
-    persyaratan TEXT,
-    prosedur TEXT,
-    biaya VARCHAR(100) DEFAULT 'Gratis',
-    estimasi_waktu VARCHAR(100)
-)
+    nama_kategori VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE unduhan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_dokumen VARCHAR(255) NOT NULL,
+    nama_file VARCHAR(255) NOT NULL,
+    id_kategori INT,
+    tgl_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_kategori) REFERENCES kategori_unduhan(id) ON DELETE SET NULL
+);
+
+-- 13. Tabel kontak (PERBAIKAN - TAMBAHKAN maps_embed)
+CREATE TABLE kontak (
+    id INT PRIMARY KEY DEFAULT 1,
+    alamat TEXT,
+    telepon VARCHAR(20),
+    email VARCHAR(100),
+    whatsapp VARCHAR(20),
+    facebook VARCHAR(255),
+    instagram VARCHAR(255),
+    maps_embed TEXT
+);
+
+-- Insert data default kontak
+INSERT INTO kontak (id, alamat, telepon, email, whatsapp, facebook, instagram, maps_embed) 
+VALUES (1, 'Jl. Raya Merak Batin No. 1, Natar, Lampung Selatan', '08123456789', 'desa@merakbatin.id', '-', '-', '-', '-')
+ON DUPLICATE KEY UPDATE 
+    alamat = VALUES(alamat),
+    telepon = VALUES(telepon),
+    email = VALUES(email);
+
+-- Insert data default profil
+INSERT INTO profil (id, sejarah, visi, misi, populasi, luas_wilayah) 
+VALUES (1, 'Sejarah desa...', 'Visi...', 'Misi...', 1890, '54.482.300 m²')
+ON DUPLICATE KEY UPDATE 
+    sejarah = VALUES(sejarah), 
+    visi = VALUES(visi), 
+    misi = VALUES(misi), 
+    populasi = VALUES(populasi), 
+    luas_wilayah = VALUES(luas_wilayah);
+
+-- Insert default user admin
+INSERT INTO users (username, password, nama_lengkap) 
+VALUES ('admin', MD5('admin123'), 'Administrator')
+ON DUPLICATE KEY UPDATE username = VALUES(username);
