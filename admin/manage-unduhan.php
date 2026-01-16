@@ -9,16 +9,19 @@ if (isset($_POST['tambah_kategori'])) {
     $nama_kat = mysqli_real_escape_string($conn, $_POST['nama_kategori']);
     mysqli_query($conn, "INSERT INTO kategori_unduhan (nama_kategori) VALUES ('$nama_kat')");
     $sukses = "Kategori dokumen berhasil ditambahkan!";
+    header("Location: manage-unduhan.php?success=kategori"); 
+    exit;
 }
 
 if (isset($_GET['hapus_kategori'])) {
     $id_kat = (int)$_GET['hapus_kategori'];
     mysqli_query($conn, "DELETE FROM kategori_unduhan WHERE id = $id_kat");
-    header("Location: manage-unduhan.php"); exit;
+    header("Location: manage-unduhan.php"); 
+    exit;
 }
 
 // --- LOGIKA UNGGAH DOKUMEN ---
-if (isset($_POST['upload'])) {
+if (isset($_POST['upload']) && isset($_FILES['dokumen'])) {
     $nama_dokumen = mysqli_real_escape_string($conn, $_POST['nama_dokumen']);
     $id_kategori = (int)$_POST['id_kategori'];
     
@@ -35,9 +38,16 @@ if (isset($_POST['upload'])) {
 
         if (move_uploaded_file($file_tmp, $target_path)) {
             $query = "INSERT INTO unduhan (nama_dokumen, nama_file, id_kategori) VALUES ('$nama_dokumen', '$new_filename', $id_kategori)";
-            if (mysqli_query($conn, $query)) { $sukses = "Dokumen berhasil dipublikasikan!"; }
-        } else { $error = "Gagal mengunggah file ke server."; }
-    } else { $error = "Format file tidak didukung."; }
+            if (mysqli_query($conn, $query)) { 
+                header("Location: manage-unduhan.php?success=upload");
+                exit;
+            }
+        } else { 
+            $error = "Gagal mengunggah file ke server."; 
+        }
+    } else { 
+        $error = "Format file tidak didukung."; 
+    }
 }
 
 // --- LOGIKA HAPUS DOKUMEN ---
@@ -49,7 +59,17 @@ if (isset($_GET['hapus'])) {
         unlink("../assets/files/unduhan/" . $row['nama_file']);
     }
     mysqli_query($conn, "DELETE FROM unduhan WHERE id = $id");
-    header("Location: manage-unduhan.php"); exit;
+    header("Location: manage-unduhan.php"); 
+    exit;
+}
+
+// Tampilkan pesan sukses dari URL parameter
+if (isset($_GET['success'])) {
+    if ($_GET['success'] == 'upload') {
+        $sukses = "Dokumen berhasil dipublikasikan!";
+    } elseif ($_GET['success'] == 'kategori') {
+        $sukses = "Kategori dokumen berhasil ditambahkan!";
+    }
 }
 
 $data_unduhan = mysqli_query($conn, "SELECT u.*, k.nama_kategori FROM unduhan u LEFT JOIN kategori_unduhan k ON u.id_kategori = k.id ORDER BY u.tgl_upload DESC");
@@ -81,7 +101,7 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_unduhan ORDER BY nama_
             padding: 25px 15px;
             transition: all 0.3s;
             z-index: 1000;
-            overflow: hidden; /* Prevent sidebar from scrolling */
+            overflow: hidden;
         }
 
         .sidebar-brand { 
@@ -91,7 +111,7 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_unduhan ORDER BY nama_
             padding-bottom: 30px; 
             border-bottom: 1px solid #2d3238; 
             margin-bottom: 20px;
-            flex-shrink: 0; /* Prevent brand from shrinking */
+            flex-shrink: 0;
         }
 
         .sidebar-menu { 
@@ -99,28 +119,19 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_unduhan ORDER BY nama_
             list-style: none; 
             padding: 0; 
             margin: 0;
-            overflow-y: auto; /* Only menu scrolls */
+            overflow-y: auto;
             overflow-x: hidden;
-            /* Custom scrollbar */
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
         }
         
-        /* Webkit scrollbar styling */
-        .sidebar-menu::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .sidebar-menu::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .sidebar-menu::-webkit-scrollbar-thumb {
+        .sidebar-menu::-webkit-scrollbar { width: 6px; }
+        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-menu::-webkit-scrollbar-thumb { 
             background-color: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
         }
-        
-        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+        .sidebar-menu::-webkit-scrollbar-thumb:hover { 
             background-color: rgba(255, 255, 255, 0.3);
         }
 
@@ -133,19 +144,19 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_unduhan ORDER BY nama_
             transition: 0.3s;
             font-weight: 500;
             margin-bottom: 4px;
-            white-space: nowrap; /* Prevent text wrapping */
+            white-space: nowrap;
+            text-decoration: none;
         }
         .nav-link i { font-size: 1.2rem; margin-right: 12px; }
         .nav-link:hover, .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
         .nav-link.active { background: var(--active-blue); color: #fff; }
 
-        /* Logout Section (Fixed at bottom) */
         .logout-section { 
             margin-top: auto; 
             padding-top: 20px; 
             border-top: 1px solid #2d3238;
-            flex-shrink: 0; /* Prevent logout from shrinking */
-            background: var(--sidebar-bg); /* Ensure background consistency */
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
         }
         .logout-link { color: #ea868f !important; }
         .logout-link:hover { background: rgba(234, 134, 143, 0.1); }
@@ -161,8 +172,7 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_unduhan ORDER BY nama_
             .mobile-header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 999; }
         }
 
-        .stat-card { border: none; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
+        .card-premium { border: none; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: #fff; }
     </style>
 </head>
 <body>
@@ -177,14 +187,14 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_unduhan ORDER BY nama_
         <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i> Merak Batin</div>
         
         <ul class="sidebar-menu">
-            <li><a href="index.php" class="nav-link active"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+            <li><a href="index.php" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
             <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house-door"></i> Profil Desa</a></li>
             <li><a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a></li>
             <li><a href="manage-berita.php" class="nav-link"><i class="bi bi-journal-text"></i> Kelola Berita</a></li>
             <li><a href="manage-apbdesa.php" class="nav-link"><i class="bi bi-cash-stack"></i> APB Desa</a></li>
             <li><a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a></li>
             <li><a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a></li>
-            <li><a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a></li>
+            <li><a href="manage-unduhan.php" class="nav-link active"><i class="bi bi-download"></i> Unduhan</a></li>
             <li><a href="manage-kontak.php" class="nav-link"><i class="bi bi-telephone"></i> Kontak</a></li>
         </ul>
 

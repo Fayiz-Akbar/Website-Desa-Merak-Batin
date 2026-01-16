@@ -42,37 +42,130 @@ $data = mysqli_fetch_assoc($res);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
-        :root { --sidebar-bg: #111827; --active-blue: #0d6efd; }
-        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
-        .sidebar { width: 280px; background: var(--sidebar-bg); height: 100vh; position: fixed; display: flex; flex-direction: column; padding: 25px 0; z-index: 1000; transition: 0.3s; }
-        .sidebar-brand { color: var(--active-blue); font-weight: 800; font-size: 1.5rem; padding: 0 25px 25px; border-bottom: 1px solid #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .sidebar-menu { flex-grow: 1; list-style: none; padding: 0 15px; overflow-y: auto; }
-        .nav-link { color: #9ca3af; padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; transition: 0.3s; font-weight: 500; text-decoration: none; margin-bottom: 5px; }
-        .nav-link i { font-size: 1.3rem; margin-right: 15px; }
-        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
-        .nav-link.active { background: var(--active-blue); color: #fff !important; }
-        .logout-section { margin-top: auto; padding: 20px 15px; border-top: 1px solid #1f2937; }
-        .main-content { margin-left: 280px; padding: 40px; }
-        .card-premium { border: none; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); background: #fff; }
+     :root { --sidebar-bg: #1a1d20; --active-blue: #0d6efd; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            padding: 25px 15px;
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow: hidden; /* Prevent sidebar from scrolling */
+        }
+
+        .sidebar-brand { 
+            color: var(--active-blue); 
+            font-weight: 700; 
+            font-size: 1.4rem; 
+            padding-bottom: 30px; 
+            border-bottom: 1px solid #2d3238; 
+            margin-bottom: 20px;
+            flex-shrink: 0; /* Prevent brand from shrinking */
+        }
+
+        .sidebar-menu { 
+            flex-grow: 1; 
+            list-style: none; 
+            padding: 0; 
+            margin: 0;
+            overflow-y: auto; /* Only menu scrolls */
+            overflow-x: hidden;
+            /* Custom scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+        
+        /* Webkit scrollbar styling */
+        .sidebar-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-link {
+            color: #adb5bd;
+            padding: 12px 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        .nav-link i { font-size: 1.2rem; margin-right: 12px; }
+        .nav-link:hover, .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
+        .nav-link.active { background: var(--active-blue); color: #fff; }
+
+        /* Logout Section (Fixed at bottom) */
+        .logout-section { 
+            margin-top: auto; 
+            padding-top: 20px; 
+            border-top: 1px solid #2d3238;
+            flex-shrink: 0; /* Prevent logout from shrinking */
+            background: var(--sidebar-bg); /* Ensure background consistency */
+        }
+        .logout-link { color: #ea868f !important; }
+        .logout-link:hover { background: rgba(234, 134, 143, 0.1); }
+
+        /* Layout Responsif */
+        .main-content { margin-left: 280px; padding: 40px; transition: 0.3s; }
+        .mobile-header { display: none; background: #fff; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
+
+        @media (max-width: 991.98px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 999; }
+        }
+
+        .stat-card { border: none; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body>
 
+<div class="mobile-header">
+    <span class="fw-bold text-primary">Admin Merak Batin</span>
+    <button class="btn btn-primary" id="sidebarToggle"><i class="bi bi-list"></i></button>
+</div>
+
 <div class="d-flex">
-    <nav class="sidebar">
-        <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i><span>Merak Batin</span></div>
-        <div class="sidebar-menu">
-            <a href="index.php" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-            <a href="manage-profil.php" class="nav-link"><i class="bi bi-house"></i> Profil Desa</a>
-            <a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a>
-            <a href="manage-berita.php" class="nav-link"><i class="bi bi-journal-text"></i> Kelola Berita</a>
-            <a href="manage-apbdesa.php" class="nav-link"><i class="bi bi-wallet2"></i> APB Desa</a>
-            <a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a>
-            <a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a>
-            <a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a>
-            <a href="manage-kontak.php" class="nav-link active"><i class="bi bi-telephone"></i> Kontak</a>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i> Merak Batin</div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="index.php" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+            <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house-door"></i> Profil Desa</a></li>
+            <li><a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a></li>
+            <li><a href="manage-berita.php" class="nav-link"><i class="bi bi-journal-text"></i> Kelola Berita</a></li>
+            <li><a href="manage-apbdesa.php" class="nav-link"><i class="bi bi-cash-stack"></i> APB Desa</a></li>
+            <li><a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a></li>
+            <li><a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a></li>
+            <li><a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a></li>
+            <li><a href="manage-kontak.php" class="nav-link active"><i class="bi bi-telephone"></i> Kontak</a></li>
+        </ul>
+
+        <div class="logout-section">
+            <a href="logout.php" class="nav-link logout-link"><i class="bi bi-box-arrow-right"></i> Keluar</a>
         </div>
-        <div class="logout-section"><a href="logout.php" class="nav-link text-danger"><i class="bi bi-box-arrow-right"></i> Keluar</a></div>
     </nav>
 
     <main class="main-content w-100">
