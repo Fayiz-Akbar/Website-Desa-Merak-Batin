@@ -73,11 +73,11 @@ if (isset($_POST['update'])) {
         :root { --sidebar-bg: #1a1d20; --primary-blue: #0d6efd; --card-shadow: 0 10px 30px rgba(0,0,0,0.04); }
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; margin: 0; }
 
-        .sidebar { width: 280px; background: var(--sidebar-bg); height: 100vh; position: fixed; display: flex; flex-direction: column; padding: 25px 15px; z-index: 1000; }
-        .sidebar-brand { color: var(--primary-blue); font-weight: 700; font-size: 1.4rem; padding-bottom: 30px; border-bottom: 1px solid #2d3238; margin-bottom: 20px; }
-        .sidebar-menu { flex-grow: 1; list-style: none; padding: 0; margin: 0; overflow-y: auto; scrollbar-width: thin; }
-        .nav-link { color: #adb5bd; padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; transition: 0.3s; font-weight: 500; margin-bottom: 4px; text-decoration: none; }
-        .nav-link i { font-size: 1.2rem; margin-right: 12px; }
+        .sidebar { width: 280px; background: var(--sidebar-bg); height: 100vh; position: fixed; display: flex; flex-direction: column; padding: 20px 15px; z-index: 1000; }
+        .sidebar-brand { color: var(--primary-blue); font-weight: 700; font-size: 1.3rem; padding-bottom: 25px; border-bottom: 1px solid #2d3238; margin-bottom: 15px; }
+        .sidebar-menu { flex-grow: 1; list-style: none; padding: 0; margin: 0; overflow-y: hidden; scrollbar-width: thin; }
+        .nav-link { color: #adb5bd; padding: 10px 16px; border-radius: 11px; display: flex; align-items: center; transition: 0.3s; font-weight: 500; margin-bottom: 6px; text-decoration: none; font-size: 0.95rem; }
+        .nav-link i { font-size: 1.15rem; margin-right: 11px; }
         .nav-link:hover, .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--primary-blue); }
         .nav-link.active { background: var(--primary-blue); color: #fff !important; }
         .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid #2d3238; }
@@ -112,6 +112,7 @@ if (isset($_POST['update'])) {
             <li><a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a></li>
             <li><a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a></li>
             <li><a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a></li>
+            <li><a href="manage-galeri.php" class="nav-link"><i class="bi bi-images"></i> Galeri Desa</a></li>
             <li><a href="manage-kontak.php" class="nav-link"><i class="bi bi-telephone"></i> Kontak</a></li>
         </ul>
         <div class="logout-section"><a href="logout.php" class="nav-link text-danger"><i class="bi bi-box-arrow-right"></i> Keluar</a></div>

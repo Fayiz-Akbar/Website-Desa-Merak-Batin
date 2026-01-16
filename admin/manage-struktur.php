@@ -123,7 +123,7 @@ $data_berita = mysqli_query($conn, "SELECT b.*, k.nama_kategori FROM berita b LE
             position: fixed;
             display: flex;
             flex-direction: column;
-            padding: 25px 15px;
+            padding: 20px 15px;
             transition: all 0.3s;
             z-index: 1000;
             overflow: hidden;
@@ -132,10 +132,10 @@ $data_berita = mysqli_query($conn, "SELECT b.*, k.nama_kategori FROM berita b LE
         .sidebar-brand { 
             color: var(--active-blue); 
             font-weight: 700; 
-            font-size: 1.4rem; 
-            padding-bottom: 30px; 
+            font-size: 1.3rem; 
+            padding-bottom: 25px; 
             border-bottom: 1px solid #2d3238; 
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-shrink: 0;
         }
 
@@ -144,28 +144,29 @@ $data_berita = mysqli_query($conn, "SELECT b.*, k.nama_kategori FROM berita b LE
             list-style: none; 
             padding: 0; 
             margin: 0;
-            overflow-y: auto;
+            overflow-y: hidden;
             overflow-x: hidden;
             scrollbar-width: thin;
         }
         
         .nav-link {
             color: #adb5bd;
-            padding: 12px 18px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 11px;
             display: flex;
             align-items: center;
             transition: 0.3s;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
         }
-        .nav-link i { font-size: 1.2rem; margin-right: 12px; }
+        .nav-link i { font-size: 1.15rem; margin-right: 11px; }
         .nav-link:hover { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
         .nav-link.active { background: var(--active-blue); color: #fff; }
 
         .logout-section { 
             margin-top: auto; 
-            padding-top: 20px; 
+            padding-top: 16px; 
             border-top: 1px solid #2d3238;
             flex-shrink: 0;
             background: var(--sidebar-bg);
@@ -208,6 +209,7 @@ $data_berita = mysqli_query($conn, "SELECT b.*, k.nama_kategori FROM berita b LE
             <li><a href="manage-potensi.php" class="nav-link"><i class="bi bi-map"></i> Potensi Desa</a></li>
             <li><a href="manage-prosedur.php" class="nav-link"><i class="bi bi-card-checklist"></i> Layanan</a></li>
             <li><a href="manage-unduhan.php" class="nav-link"><i class="bi bi-download"></i> Unduhan</a></li>
+            <li><a href="manage-galeri.php" class="nav-link"><i class="bi bi-images"></i> Galeri Desa</a></li>
             <li><a href="manage-kontak.php" class="nav-link"><i class="bi bi-telephone"></i> Kontak</a></li>
         </ul>
         <div class="logout-section">
