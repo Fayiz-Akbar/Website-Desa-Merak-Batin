@@ -174,8 +174,8 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_potensi ORDER BY nama_
         <div class="sidebar-brand"><i class="bi bi-geo-alt-fill"></i> Merak Batin</div>
         
         <ul class="sidebar-menu">
-            <li><a href="index.php" class="nav-link"><i class="bi bi-house-door"></i> Dashboard</a></li>
-            <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house"></i> Profil Desa</a></li>
+            <li><a href="index.php" class="nav-link"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+            <li><a href="manage-profil.php" class="nav-link"><i class="bi bi-house-door"></i> Profil Desa</a></li>
             <li><a href="manage-struktur.php" class="nav-link"><i class="bi bi-people"></i> Perangkat Desa</a></li>
             <li><a href="manage-berita.php" class="nav-link"><i class="bi bi-journal-text"></i> Kelola Berita</a></li>
             <li><a href="manage-apbdesa.php" class="nav-link"><i class="bi bi-cash-stack"></i> APB Desa</a></li>
