@@ -36,20 +36,6 @@ CREATE TABLE users (
     nama_lengkap VARCHAR(100)
 );
 
--- 4. Tabel profil (Statistik & Identitas Desa)
-CREATE TABLE profil (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    sejarah TEXT,
-    visi TEXT,
-    misi TEXT,
-    populasi INT DEFAULT 0,
-    luas_wilayah VARCHAR(50),
-    batas_utara VARCHAR(100),
-    batas_selatan VARCHAR(100),
-    batas_timur VARCHAR(100),
-    batas_barat VARCHAR(100),
-    peta_lokasi_iframe TEXT 
-);
 
 -- 5. Tabel kategori_berita & berita
 CREATE TABLE kategori_berita (
@@ -105,13 +91,6 @@ CREATE TABLE apb_desa (
     realisasi BIGINT NOT NULL
 );
 
--- 10. Tabel galeri
-CREATE TABLE galeri (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    judul_foto VARCHAR(255),
-    file_gambar VARCHAR(255) NOT NULL,
-    tgl_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 -- 11. Tabel kategori_potensi & potensi_desa
 CREATE TABLE kategori_potensi (
@@ -179,3 +158,47 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO users (username, password, nama_lengkap) 
 VALUES ('admin', MD5('admin123'), 'Administrator')
 ON DUPLICATE KEY UPDATE username = VALUES(username);
+
+-- 1. Reset Tabel Profil
+DROP TABLE IF EXISTS profil;
+CREATE TABLE profil (
+    id INT PRIMARY KEY DEFAULT 1,
+    populasi INT DEFAULT 0,
+    luas_wilayah VARCHAR(100) DEFAULT '0 km²',
+    logo VARCHAR(255),
+    foto_kepala_desa VARCHAR(255),
+    nama_kepala_desa VARCHAR(255),
+    sambutan TEXT,
+    visi TEXT,
+    misi TEXT,
+    sejarah TEXT
+);
+
+-- Masukkan data awal agar tidak error "Null" saat pertama kali dibuka
+INSERT INTO profil (id, nama_kepala_desa, sambutan, sejarah) 
+VALUES (1, 'Nama Kepala Desa', 'Selamat datang di portal resmi kami...', 'Sejarah singkat desa...');
+
+-- 2. Reset Tabel Galeri
+DROP TABLE IF EXISTS galeri;
+CREATE TABLE galeri (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    judul VARCHAR(255),
+    foto VARCHAR(255),
+    tgl_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Reset Tabel Kontak (Agar sinkron dan tidak error maps_embed)
+DROP TABLE IF EXISTS kontak;
+CREATE TABLE kontak (
+    id INT PRIMARY KEY DEFAULT 1,
+    alamat TEXT,
+    telepon VARCHAR(20),
+    email VARCHAR(100),
+    whatsapp VARCHAR(20),
+    facebook VARCHAR(255),
+    instagram VARCHAR(255),
+    maps_embed TEXT
+);
+
+-- Masukkan data awal kontak
+INSERT INTO kontak (id, alamat) VALUES (1, 'Jl. Raya Merak Batin, Natar, Lampung Selatan');
