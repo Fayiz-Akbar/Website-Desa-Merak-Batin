@@ -1,7 +1,7 @@
 <?php include 'includes/header.php'; ?>
 
-<section class="py-8 text-white" style="background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('assets/img/hero-desa.jpeg'); background-size: cover; background-position: center; margin-top: 80px; min-height: 450px;">
-    <div class="container py-5 text-center d-flex flex-column justify-content-center" style="min-height: 370px;">
+<section class="text-white" style="background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('assets/img/merakbatin.jpeg'); background-size: cover; background-position: center; padding-top: 140px; padding-bottom: 80px;">
+    <div class="container text-center">
         <h1 class="display-3 fw-bold mb-3">Profil Desa</h1>
         <p class="lead opacity-75 fs-4">Mengenal lebih dekat sejarah dan cita-cita Desa Merak Batin.</p>
     </div>
@@ -178,7 +178,6 @@
         <div class="rounded-4 overflow-hidden shadow-lg border" style="border: 3px solid #e9ecef !important;">
             <?php 
             $q_map = mysqli_fetch_assoc(mysqli_query($conn, "SELECT maps_embed FROM kontak WHERE id=1"));
-            // Mengubah ukuran iframe otomatis agar responsif di layar
             $map_iframe = str_replace('width="600"', 'width="100%"', $q_map['maps_embed'] ?? '');
             $map_iframe = str_replace('height="450"', 'height="550"', $map_iframe);
             echo $map_iframe; 
