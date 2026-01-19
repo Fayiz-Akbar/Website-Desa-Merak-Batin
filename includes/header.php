@@ -23,20 +23,33 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
             --glass: rgba(15, 23, 42, 0.8);
         }
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
 
         /* Navbar Styling */
         .navbar {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px 0;
+            padding: 1rem 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             z-index: 1050;
+            margin: 0;
         }
 
         /* Kondisi Navigasi di Halaman Selain Home */
         .navbar.not-home, .navbar.scrolled {
             background: var(--dark-blue) !important;
-            padding: 12px 0;
+            padding: 0.75rem 0;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             backdrop-filter: blur(10px);
         }
@@ -47,6 +60,7 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
             font-size: 0.95rem;
             margin: 0 10px;
             transition: 0.3s;
+            position: relative;
         }
 
         /* Warna Merah Crimson untuk Link Aktif */
@@ -54,19 +68,92 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
             color: #fff !important; 
         }
         
-        .nav-link.active {
-            border-bottom: 2px solid var(--accent-red);
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: var(--accent-red);
+            border-radius: 2px;
         }
 
-        .navbar-brand { font-weight: 800; letter-spacing: -0.5px; color: #fff !important; }
-        
+        .navbar-brand { 
+            font-weight: 800; 
+            letter-spacing: -0.5px; 
+            color: #fff !important; 
+        }
+
+        /* Button Red Style */
+        .btn-red {
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(190, 18, 60, 0.3);
+        }
+
+        .btn-red:hover {
+            background: #9f102f;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(190, 18, 60, 0.4);
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            background: white;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s;
+            color: #1e293b;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+            color: var(--accent-red);
+            padding-left: 2rem;
+        }
+
+        /* Mobile Navbar */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: rgba(15, 23, 42, 0.98);
+                margin-top: 1rem;
+                padding: 1rem;
+                border-radius: 0.5rem;
+            }
+            
+            .nav-link.active::after {
+                display: none;
+            }
+            
+            .nav-link.active {
+                background: rgba(190, 18, 60, 0.2);
+                border-radius: 0.5rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
         /* Utility */
         .hero-profil {
             padding: 160px 0 100px;
             background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), 
                         url('assets/img/hero-desa.jpg');
-            background-size: cover; background-position: center;
-            color: white; text-align: center;
+            background-size: cover; 
+            background-position: center;
+            color: white; 
+            text-align: center;
         }
     </style>
 </head>
@@ -89,13 +176,14 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">Home</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?php echo ($current_page == 'profil.php') ? 'active' : ''; ?>" href="#" data-bs-toggle="dropdown">Profil Desa</a>
-                    <ul class="dropdown-menu shadow-lg border-0">
-                        <li><a class="dropdown-item py-2" href="profil.php#visimisi">Visi & Misi</a></li>
-                        <li><a class="dropdown-item py-2" href="profil.php#sejarah">Sejarah Desa</a></li>
-                        <li><a class="dropdown-item py-2" href="profil.php#geografis">Letak Geografis</a></li>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="profil.php#visimisi">Visi & Misi</a></li>
+                        <li><a class="dropdown-item" href="profil.php#sejarah">Sejarah Desa</a></li>
+                        <li><a class="dropdown-item" href="profil.php#geografis">Letak Geografis</a></li>
                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'berita.php') ? 'active' : ''; ?>" href="berita.php">Berita</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'struktur-organisasi.php') ? 'active' : ''; ?>" href="struktur-organisasi.php">Struktur Organisasi</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'layanan.php') ? 'active' : ''; ?>" href="layanan.php">Layanan</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'kontak.php') ? 'active' : ''; ?>" href="kontak.php">Kontak</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'galeri.php') ? 'active' : ''; ?>" href="galeri.php">Galeri</a></li>

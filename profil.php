@@ -185,7 +185,7 @@
         </div>
         <div class="row g-4 mt-4">
             <div class="col-md-6">
-                <div class="p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #27315b 0%, #3b284d 100%);">
                     <div class="d-flex align-items-center gap-3 text-white">
                         <div class="bg-white bg-opacity-25 p-3 rounded-circle">
                             <i class="bi bi-geo-alt-fill fs-3"></i>
@@ -201,7 +201,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #31364b 0%, #121212 100%);">
                     <div class="d-flex align-items-center gap-3 text-white">
                         <div class="bg-white bg-opacity-25 p-3 rounded-circle">
                             <i class="bi bi-globe fs-3"></i>
