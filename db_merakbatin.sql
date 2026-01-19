@@ -202,3 +202,5 @@ CREATE TABLE kontak (
 
 -- Masukkan data awal kontak
 INSERT INTO kontak (id, alamat) VALUES (1, 'Jl. Raya Merak Batin, Natar, Lampung Selatan');
+
+ALTER TABLE `berita` ADD `ringkasan` TEXT NULL AFTER `judul`;

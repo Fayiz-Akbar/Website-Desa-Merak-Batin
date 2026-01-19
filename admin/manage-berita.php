@@ -22,6 +22,7 @@ if (isset($_POST['tambah_berita']) || isset($_POST['edit_berita'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
     $id_kategori = (int)$_POST['id_kategori'];
     $isi = mysqli_real_escape_string($conn, $_POST['isi_berita']);
+    $ringkasan = mysqli_real_escape_string($conn, $_POST['ringkasan']);
     
     $foto = "";
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
@@ -32,12 +33,12 @@ if (isset($_POST['tambah_berita']) || isset($_POST['edit_berita'])) {
     }
 
     if (isset($_POST['tambah_berita'])) {
-        mysqli_query($conn, "INSERT INTO berita (judul, id_kategori, gambar, isi_berita, tgl_posting) VALUES ('$judul', $id_kategori, '$foto', '$isi', NOW())");
+        mysqli_query($conn, "INSERT INTO berita (judul, id_kategori, gambar, isi_berita, ringkasan, tgl_posting) VALUES ('$judul', $id_kategori, '$foto', '$isi', '$ringkasan', NOW())");
         $sukses = "Berita berhasil terbit!";
     } else {
         $id = (int)$_POST['id_berita'];
         if ($foto != "") mysqli_query($conn, "UPDATE berita SET gambar = '$foto' WHERE id = $id");
-        mysqli_query($conn, "UPDATE berita SET judul='$judul', id_kategori=$id_kategori, isi_berita='$isi' WHERE id=$id");
+        mysqli_query($conn, "UPDATE berita SET judul='$judul', id_kategori=$id_kategori, isi_berita='$isi', ringkasan='$ringkasan' WHERE id=$id");
         $sukses = "Berita diperbarui!";
     }
 }
@@ -244,6 +245,10 @@ $categories = mysqli_query($conn, "SELECT * FROM kategori_berita ORDER BY nama_k
             <div class="modal-body"><div class="row g-4">
                 <div class="col-lg-9">
                     <input type="text" name="judul" id="judul" class="form-control form-control-lg border-0 bg-light mb-4" placeholder="Judul Berita" required>
+                    <div class="mb-3">
+                        <label class="form-label">Ringkasan Berita</label>
+                        <textarea name="ringkasan" class="form-control" rows="3" placeholder="Ringkasan singkat berita (maksimal 200 karakter)"></textarea>
+                    </div>
                     <textarea name="isi_berita" id="editor"></textarea>
                 </div>
                 <div class="col-lg-3"><div class="p-3 bg-light rounded-4">
