@@ -100,7 +100,7 @@
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-end mb-5">
             <div>
-                <h2 class="fw-bold">Warta Merak Batin</h2>
+                <h2 class="fw-bold">Berita Merak Batin</h2>
                 <p class="text-muted">Ikuti kabar dan kegiatan terkini warga desa.</p>
             </div>
             <a href="berita.php" class="btn btn-outline-dark rounded-pill px-4 fw-bold">Semua Berita</a>

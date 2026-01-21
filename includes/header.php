@@ -181,7 +181,12 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
 <nav class="navbar navbar-expand-lg fixed-top <?php echo !$is_home ? 'not-home' : ''; ?>" id="mainNav">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="index.php">
-            <img src="assets/img/logo/<?php echo $profil['logo'] ?? 'default.png'; ?>" width="40" class="me-2">
+            <?php 
+            $logo_path = 'assets/img/logo/' . ($profil['logo'] ?? 'default.png');
+            if (!empty($profil['logo']) && file_exists($logo_path)): 
+            ?>
+                <img src="<?php echo $logo_path; ?>" width="40" class="me-2">
+            <?php endif; ?>
             <div class="lh-1">
                 <span class="fs-5 d-block">MERAK BATIN</span>
                 <small class="fw-normal opacity-75" style="font-size: 0.7rem;">Kecamatan Natar</small>
@@ -204,6 +209,7 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'berita.php') ? 'active' : ''; ?>" href="berita.php">Berita</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'struktur-organisasi.php') ? 'active' : ''; ?>" href="struktur-organisasi.php">Struktur Organisasi</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'layanan.php') ? 'active' : ''; ?>" href="layanan.php">Layanan</a></li>
+                <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'unduhan.php') ? 'active' : ''; ?>" href="unduhan.php">Unduhan</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'kontak.php') ? 'active' : ''; ?>" href="kontak.php">Kontak</a></li>
                 <li class="nav-item"><a class="nav-link <?php echo ($current_page == 'galeri.php') ? 'active' : ''; ?>" href="galeri.php">Galeri</a></li>
             </ul>

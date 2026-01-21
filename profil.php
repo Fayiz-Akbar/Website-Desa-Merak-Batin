@@ -131,18 +131,18 @@
                         <div class="col-6">
                             <div class="p-3 bg-light rounded-3">
                                 <small class="text-muted d-block mb-1">Latitude</small>
-                                <h6 class="fw-bold mb-0">-5.3018109°</h6>
+                                <h6 class="fw-bold mb-0">-5.3098202°</h6>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="p-3 bg-light rounded-3">
                                 <small class="text-muted d-block mb-1">Longitude</small>
-                                <h6 class="fw-bold mb-0">105.2253316°</h6>
+                                <h6 class="fw-bold mb-0">105.194385°</h6>
                             </div>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <a href="https://maps.app.goo.gl/WwvL3EMRKoTXEjXt7" target="_blank" class="btn btn-outline-primary w-100 rounded-3">
+                        <a href="https://maps.app.goo.gl/WRzUx3aSusatYiUr9" target="_blank" class="btn btn-outline-primary w-100 rounded-3">
                             <i class="bi bi-box-arrow-up-right me-2"></i>Buka di Google Maps
                         </a>
                     </div>
