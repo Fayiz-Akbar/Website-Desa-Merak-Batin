@@ -124,6 +124,25 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
             color: var(--accent-red);
             padding-left: 2rem;
         }
+        
+        .dropdown-toggle::after {
+            display: inline-block !important;
+            margin-left: 0.3em;
+            vertical-align: middle;
+        }
+        
+        .nav-link:focus,
+        .nav-link:active,
+        .dropdown-toggle:focus,
+        .dropdown-toggle:active {
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
 
         /* Mobile Navbar */
         @media (max-width: 991.98px) {

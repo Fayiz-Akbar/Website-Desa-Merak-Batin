@@ -39,13 +39,6 @@
     </div>
 </section>
 
-<section class="mb-5 shadow-lg overflow-hidden" style="border-radius: 40px; margin: 0 20px;">
-    <?php 
-    $q_map = mysqli_fetch_assoc(mysqli_query($conn, "SELECT maps_embed FROM kontak WHERE id=1"));
-    echo $q_map['maps_embed']; 
-    ?>
-</section>
-
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
