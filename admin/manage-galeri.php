@@ -78,15 +78,22 @@ $data_galeri = mysqli_query($conn, "SELECT * FROM galeri ORDER BY tgl_upload DES
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         .delete-btn { position: absolute; top: 10px; right: 10px; opacity: 0; transition: 0.3s; }
         .gallery-card:hover .delete-btn { opacity: 1; }
+        .mobile-header { display: none; background: #fff; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
 
         @media (max-width: 991.98px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; }
         }
     </style>
 </head>
 <body>
+
+<div class="mobile-header">
+    <span class="fw-bold text-primary">Admin Merak Batin</span>
+    <button class="btn btn-primary" id="sidebarToggle"><i class="bi bi-list"></i></button>
+</div>
 
 <div class="d-flex">
     <nav class="sidebar" id="sidebar">
@@ -179,5 +186,14 @@ $data_galeri = mysqli_query($conn, "SELECT * FROM galeri ORDER BY tgl_upload DES
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if(toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+</script>
 </body>
 </html>

@@ -138,6 +138,24 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
             outline: none !important;
             box-shadow: none !important;
             background: transparent !important;
+            color: rgba(255,255,255,0.7) !important;
+        }
+        
+        .nav-link.show,
+        .dropdown-toggle.show {
+            color: #fff !important;
+            background: transparent !important;
+        }
+        
+        .dropdown-toggle.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: var(--accent-red);
+            border-radius: 2px;
         }
         
         .dropdown-menu.show {

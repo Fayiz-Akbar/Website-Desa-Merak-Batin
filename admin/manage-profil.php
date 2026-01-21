@@ -90,15 +90,22 @@ if (isset($_POST['update'])) {
         .form-label { font-weight: 600; font-size: 0.85rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-control { border-radius: 10px; padding: 12px; border: 1px solid #dee2e6; background-color: #fdfdfd; }
         .preview-img { width: 100px; height: 100px; object-fit: cover; border-radius: 15px; border: 2px solid #eee; }
+        .mobile-header { display: none; background: #fff; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
 
         @media (max-width: 991.98px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 20px; }
+            .mobile-header { display: flex; justify-content: space-between; align-items: center; }
         }
     </style>
 </head>
 <body>
+
+<div class="mobile-header">
+    <span class="fw-bold text-primary">Admin Merak Batin</span>
+    <button class="btn btn-primary" id="sidebarToggle"><i class="bi bi-list"></i></button>
+</div>
 
 <div class="d-flex">
     <nav class="sidebar" id="sidebar">

@@ -94,6 +94,8 @@ $data = mysqli_fetch_assoc($res);
         .nav-link:hover, .nav-link.active { background: rgba(13, 110, 253, 0.15); color: var(--active-blue); }
         .nav-link.active { background: var(--active-blue); color: #fff; }
 
+        .mobile-header { display: none; background: #fff; padding: 15px 20px; border-bottom: 1px solid #dee2e6; }
+
         /* Logout Section (Fixed at bottom) */
         .logout-section { 
             margin-top: auto; 
@@ -209,5 +211,14 @@ $data = mysqli_fetch_assoc($res);
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if(toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+</script>
 </body>
 </html>

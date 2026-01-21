@@ -21,8 +21,8 @@
             ?>
             <div class="col-md-4 col-sm-6">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 gallery-item">
-                    <div class="img-container position-relative">
-                        <img src="assets/img/galeri/<?php echo $g['foto']; ?>" class="w-100 h-100" style="object-fit: cover; min-height: 250px;" alt="<?php echo htmlspecialchars($g['judul']); ?>">
+                    <div class="img-container position-relative" style="height: 280px;">
+                        <img src="assets/img/galeri/<?php echo $g['foto']; ?>" class="w-100 h-100" style="object-fit: cover;" alt="<?php echo htmlspecialchars($g['judul']); ?>">
                         
                         <div class="gallery-overlay d-flex align-items-center justify-content-center">
                             <button class="btn btn-light rounded-circle shadow" onclick="showImage('assets/img/galeri/<?php echo $g['foto']; ?>', '<?php echo htmlspecialchars($g['judul']); ?>')">
