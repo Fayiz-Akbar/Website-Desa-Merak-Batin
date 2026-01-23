@@ -11,28 +11,34 @@
     <div class="container py-5">
         <div class="text-center mb-5">
             <h6 class="text-uppercase fw-bold mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Cita-cita Desa</h6>
-            <h2 class="fw-bold">Visi & Misi</h2>
+            <h2 class="fw-bold display-6">Visi & Misi</h2>
             <hr class="mx-auto" style="width: 60px; height: 4px; background: var(--accent-red); border: 0; opacity: 1;">
         </div>
         
         <div class="row g-4">
             <div class="col-lg-5">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 text-center" style="border-top: 5px solid var(--accent-red) !important;">
+                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 text-center border-top-crimson">
                     <div class="mb-4">
-                        <i class="bi bi-eye-fill fs-1" style="color: var(--accent-red);"></i>
+                        <div class="icon-circle bg-danger bg-opacity-10 mx-auto">
+                            <i class="bi bi-eye-fill fs-2" style="color: var(--accent-red);"></i>
+                        </div>
                     </div>
-                    <h4 class="fw-bold mb-3">Visi</h4>
-                    <p class="fs-5 text-muted italic">"<?php echo nl2br($profil['visi'] ?? ''); ?>"</p>
+                    <h4 class="fw-bold mb-4" style="color: var(--dark-blue);">Visi</h4>
+                    <p class="vision-text italic">
+                        "<?php echo nl2br($profil['visi'] ?? ''); ?>"
+                    </p>
                 </div>
             </div>
             
             <div class="col-lg-7">
-                <div class="card h-100 border-0 shadow-sm p-4 rounded-4" style="border-top: 5px solid var(--dark-blue) !important;">
+                <div class="card h-100 border-0 shadow-sm p-4 rounded-4 border-top-navy">
                     <div class="d-flex align-items-center mb-4">
-                        <i class="bi bi-list-check fs-1 me-3" style="color: var(--dark-blue);"></i>
-                        <h4 class="fw-bold mb-0">Misi Desa</h4>
+                        <div class="icon-circle bg-primary bg-opacity-10 me-3">
+                            <i class="bi bi-list-check fs-2" style="color: var(--dark-blue);"></i>
+                        </div>
+                        <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Misi Desa</h4>
                     </div>
-                    <div class="text-muted lh-lg">
+                    <div class="mission-content">
                         <?php echo nl2br($profil['misi'] ?? ''); ?>
                     </div>
                 </div>
@@ -40,6 +46,49 @@
         </div>
     </div>
 </section>
+
+<style>
+    /* CSS Tambahan untuk Memperjelas Tulisan */
+    :root {
+        --text-dark: #1e293b; /* Warna Slate-800 agar lebih mudah dibaca daripada abu-abu biasa */
+    }
+
+    .border-top-crimson { border-top: 6px solid var(--accent-red) !important; }
+    .border-top-navy { border-top: 6px solid var(--dark-blue) !important; }
+
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    /* Styling Teks Visi agar lebih 'berwibawa' */
+    .vision-text {
+        font-size: 1.35rem; /* Ukuran lebih besar dari teks biasa */
+        font-weight: 600;
+        color: var(--text-dark);
+        line-height: 1.6;
+        padding: 0 15px;
+    }
+
+    /* Styling Teks Misi agar tidak terlihat menumpuk */
+    .mission-content {
+        font-size: 1.1rem;
+        line-height: 1.9; /* Menambah jarak antar baris agar mata tidak lelah */
+        color: #334155;
+        font-weight: 400;
+        text-align: justify;
+    }
+
+    /* Memastikan teks yang ditebalkan (bold) di CKEditor tetap terlihat menonjol */
+    .mission-content strong, .mission-content b {
+        color: var(--dark-blue);
+        font-weight: 700;
+    }
+</style>
 
 <section id="sejarah" class="py-5 bg-light">
     <div class="container py-5">
