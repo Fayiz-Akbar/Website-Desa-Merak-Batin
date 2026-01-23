@@ -22,7 +22,7 @@
                         <i class="bi bi-eye-fill fs-1" style="color: var(--accent-red);"></i>
                     </div>
                     <h4 class="fw-bold mb-3">Visi</h4>
-                    <p class="fs-5 text-muted italic">"<?php echo nl2br($profil['visi']); ?>"</p>
+                    <p class="fs-5 text-muted italic">"<?php echo nl2br($profil['visi'] ?? ''); ?>"</p>
                 </div>
             </div>
             
@@ -33,7 +33,7 @@
                         <h4 class="fw-bold mb-0">Misi Desa</h4>
                     </div>
                     <div class="text-muted lh-lg">
-                        <?php echo nl2br($profil['misi']); ?>
+                        <?php echo nl2br($profil['misi'] ?? ''); ?>
                     </div>
                 </div>
             </div>
@@ -46,14 +46,14 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <div class="rounded-4 overflow-hidden shadow-lg">
-                    <img src="assets/img/hero-desa.jpg" class="w-100" alt="Foto Desa Merak Batin" style="height: 400px; object-fit: cover;">
+                    <img src="assets/img/hero-desa.jpeg" class="w-100" alt="Foto Desa Merak Batin" style="height: 400px; object-fit: cover;">
                 </div>
             </div>
             <div class="col-lg-6">
                 <h6 class="text-uppercase fw-bold mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Jejak Langkah</h6>
                 <h2 class="fw-bold mb-4">Sejarah Desa Merak Batin</h2>
                 <div class="lh-lg text-muted">
-                    <?php echo nl2br($profil['sejarah']); ?>
+                    <?php echo nl2br($profil['sejarah'] ?? ''); ?>
                 </div>
             </div>
         </div>
@@ -117,57 +117,55 @@
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<section id="potensi" class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h6 class="text-uppercase fw-bold mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Kekayaan Desa</h6>
+            <h2 class="fw-bold">Potensi Desa</h2>
+            <hr class="mx-auto" style="width: 60px; height: 4px; background: var(--accent-red); border: 0; opacity: 1;">
+            <p class="text-muted mt-3">Mengenal keunggulan UMKM, wisata, dan hasil bumi Desa Merak Batin.</p>
+        </div>
 
         <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
-                            <i class="bi bi-compass fs-4 text-primary"></i>
-                        </div>
-                        <h5 class="fw-bold mb-0">Koordinat</h5>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded-3">
-                                <small class="text-muted d-block mb-1">Latitude</small>
-                                <h6 class="fw-bold mb-0">-5.3098202°</h6>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded-3">
-                                <small class="text-muted d-block mb-1">Longitude</small>
-                                <h6 class="fw-bold mb-0">105.194385°</h6>
-                            </div>
+            <?php 
+            $q_potensi = mysqli_query($conn, "SELECT p.*, k.nama_kategori FROM potensi_desa p 
+                                              LEFT JOIN kategori_potensi k ON p.id_kategori = k.id 
+                                              ORDER BY p.id DESC");
+            if (mysqli_num_rows($q_potensi) > 0) :
+                while ($p = mysqli_fetch_assoc($q_potensi)) :
+            ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 hover-lift" style="transition: all 0.3s ease;">
+                    <div class="position-relative">
+                        <img src="assets/img/potensi/<?php echo $p['foto']; ?>" class="card-img-top" style="height: 250px; object-fit: cover;" alt="<?php echo $p['judul']; ?>">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge bg-crimson px-3 py-2 rounded-pill shadow-sm">
+                                <?php echo $p['nama_kategori']; ?>
+                            </span>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <a href="https://maps.app.goo.gl/WRzUx3aSusatYiUr9" target="_blank" class="btn btn-outline-primary w-100 rounded-3">
-                            <i class="bi bi-box-arrow-up-right me-2"></i>Buka di Google Maps
-                        </a>
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-2" style="color: var(--dark-blue);"><?php echo $p['judul']; ?></h5>
+                        <p class="text-muted small mb-0 lh-lg">
+                            <?php echo nl2br($p['deskripsi']); ?>
+                        </p>
                     </div>
                 </div>
             </div>
-
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
-                            <i class="bi bi-info-circle fs-4 text-success"></i>
-                        </div>
-                        <h5 class="fw-bold mb-0">Tentang Lokasi</h5>
-                    </div>
-                    <p class="text-muted mb-0 lh-lg">
-                        Merak Batin adalah desa yang berada di Kecamatan Natar, Kabupaten Lampung Selatan, Provinsi Lampung, Indonesia. 
-                        Desa ini merupakan bagian dari wilayah administratif yang strategis dengan akses yang baik ke berbagai fasilitas umum.
-                    </p>
-                </div>
-            </div>
+            <?php 
+                endwhile;
+            else :
+                echo '<div class="col-12 text-center text-muted italic">Belum ada data potensi desa.</div>';
+            endif;
+            ?>
         </div>
     </div>
 </section>
 
-<section id="peta" class="py-5 bg-light">
+<section id="peta" class="py-5 bg-white">
     <div class="container py-5">
         <div class="text-center mb-5">
             <h6 class="text-uppercase fw-bold mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Temukan Kami</h6>
@@ -183,44 +181,16 @@
             echo $map_iframe; 
             ?>
         </div>
-        <div class="row g-4 mt-4">
-            <div class="col-md-6">
-                <div class="p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #27315b 0%, #3b284d 100%);">
-                    <div class="d-flex align-items-center gap-3 text-white">
-                        <div class="bg-white bg-opacity-25 p-3 rounded-circle">
-                            <i class="bi bi-geo-alt-fill fs-3"></i>
-                        </div>
-                        <div>
-                            <h6 class="fw-bold mb-2 opacity-75" style="font-size: 0.85rem;">ALAMAT KANTOR DESA</h6>
-                            <?php 
-                            $res_kontak = mysqli_fetch_assoc(mysqli_query($conn, "SELECT alamat FROM kontak WHERE id=1"));
-                            echo '<p class="mb-0 fw-semibold">'.($res_kontak['alamat'] ?? '-').'</p>';
-                            ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #31364b 0%, #121212 100%);">
-                    <div class="d-flex align-items-center gap-3 text-white">
-                        <div class="bg-white bg-opacity-25 p-3 rounded-circle">
-                            <i class="bi bi-globe fs-3"></i>
-                        </div>
-                        <div>
-                            <h6 class="fw-bold mb-2 opacity-75" style="font-size: 0.85rem;">WILAYAH ADMINISTRATIF</h6>
-                            <p class="mb-0 fw-semibold">Kec. Natar, Kab. Lampung Selatan</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 
 <style>
 .hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+    transform: translateY(-8px);
+    box-shadow: 0 1rem 3rem rgba(15, 23, 42, 0.15) !important;
+}
+.bg-crimson {
+    background-color: var(--accent-red);
 }
 </style>
 
