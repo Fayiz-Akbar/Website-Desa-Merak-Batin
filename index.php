@@ -21,9 +21,9 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-5 text-center">
                 <div class="position-relative d-inline-block">
-                    <img src="assets/img/kades/<?php echo $profil['foto_kepala_desa']; ?>" class="img-fluid rounded-4 shadow-lg border-5 border-white" style="max-height: 450px; object-fit: cover;">
+                    <img src="assets/img/kades/<?php echo htmlspecialchars($profil['foto_kepala_desa'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid rounded-4 shadow-lg border-5 border-white" style="max-height: 450px; object-fit: cover;">
                     <div class="position-absolute bottom-0 start-50 translate-middle-x bg-white p-3 rounded-4 shadow-sm" style="width: 90%;">
-                        <h6 class="fw-bold mb-0 text-dark"><?php echo $profil['nama_kepala_desa']; ?></h6>
+                        <h6 class="fw-bold mb-0 text-dark"><?php echo htmlspecialchars($profil['nama_kepala_desa'], ENT_QUOTES, 'UTF-8'); ?></h6>
                         <small class="text-muted">Kepala Desa Merak Batin</small>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                 <h6 class="text-uppercase fw-bold mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Kata Sambutan</h6>
                 <h2 class="fw-bold mb-4">Membangun Bersama Masyarakat</h2>
                 <div class="fs-5 text-muted lh-lg mb-4 italic" style="font-style: italic; border-left: 4px solid var(--accent-red); padding-left: 20px;">
-                    "<?php echo $profil['sambutan']; ?>"
+                    "<?php echo nl2br(htmlspecialchars($profil['sambutan'], ENT_QUOTES, 'UTF-8')); ?>"
                 </div>
             </div>
         </div>
@@ -50,9 +50,9 @@
             while($p = mysqli_fetch_assoc($perangkat)): ?>
             <div class="col-6 col-md-3">
                 <div class="card border-0 text-center p-3 rounded-4 shadow-sm" style="transition: 0.3s;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <img src="assets/img/perangkat/<?php echo $p['foto']; ?>" class="rounded-circle mx-auto mb-3" width="100" height="100" style="object-fit: cover; border: 3px solid var(--dark-blue);">
-                    <h6 class="fw-bold mb-1"><?php echo $p['nama']; ?></h6>
-                    <small class="badge bg-light text-primary"><?php echo $p['jabatan']; ?></small>
+                    <img src="assets/img/perangkat/<?php echo htmlspecialchars($p['foto'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded-circle mx-auto mb-3" width="100" height="100" style="object-fit: cover; border: 3px solid var(--dark-blue);">
+                    <h6 class="fw-bold mb-1"><?php echo htmlspecialchars($p['nama'], ENT_QUOTES, 'UTF-8'); ?></h6>
+                    <small class="badge bg-light text-primary"><?php echo htmlspecialchars($p['jabatan'], ENT_QUOTES, 'UTF-8'); ?></small>
                 </div>
             </div>
             <?php endwhile; ?>
@@ -71,7 +71,7 @@
                 <p class="opacity-75 text-uppercase fw-bold">Total Penduduk</p>
             </div>
             <div class="col-md-6">
-                <h1 class="display-3 fw-bold mb-0"><?php echo $profil['luas_wilayah']; ?></h1>
+                <h1 class="display-3 fw-bold mb-0"><?php echo htmlspecialchars($profil['luas_wilayah'], ENT_QUOTES, 'UTF-8'); ?></h1>
                 <p class="opacity-75 text-uppercase fw-bold">Luas Wilayah</p>
             </div>
         </div>
@@ -111,11 +111,11 @@
             while($b = mysqli_fetch_assoc($berita)): ?>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-                    <img src="assets/img/berita/<?php echo $b['gambar']; ?>" class="card-img-top" style="height: 250px; object-fit: cover;">
+                    <img src="assets/img/berita/<?php echo htmlspecialchars($b['gambar'], ENT_QUOTES, 'UTF-8'); ?>" class="card-img-top" style="height: 250px; object-fit: cover;">
                     <div class="card-body p-4">
                         <small class="text-muted d-block mb-2"><?php echo date('d M Y', strtotime($b['tgl_posting'])); ?></small>
-                        <h5 class="fw-bold lh-base mb-3"><?php echo $b['judul']; ?></h5>
-                        <a href="berita_detail.php?id=<?php echo $b['id']; ?>" class="text-decoration-none fw-bold" style="color: var(--accent-red);">Selengkapnya <i class="bi bi-arrow-right"></i></a>
+                        <h5 class="fw-bold lh-base mb-3"><?php echo htmlspecialchars($b['judul'], ENT_QUOTES, 'UTF-8'); ?></h5>
+                        <a href="berita_detail.php?id=<?php echo (int)$b['id']; ?>" class="text-decoration-none fw-bold" style="color: var(--accent-red);">Selengkapnya <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -139,7 +139,7 @@
             while($g = mysqli_fetch_assoc($galeri)): ?>
             <div class="col-md-4">
                 <div class="rounded-4 overflow-hidden shadow-sm" style="height: 250px;">
-                    <img src="assets/img/galeri/<?php echo $g['foto']; ?>" class="w-100 h-100" style="object-fit: cover; transition: 0.5s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="assets/img/galeri/<?php echo htmlspecialchars($g['foto'], ENT_QUOTES, 'UTF-8'); ?>" class="w-100 h-100" style="object-fit: cover; transition: 0.5s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                 </div>
             </div>
             <?php endwhile; ?>

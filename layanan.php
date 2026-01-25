@@ -44,7 +44,7 @@
                                         <div class="p-3 bg-white rounded-3 h-100 shadow-sm border-start border-primary border-4">
                                             <h6 class="fw-bold text-uppercase small text-muted mb-3"><i class="bi bi-list-check me-2"></i>Persyaratan</h6>
                                             <div class="small text-dark">
-                                                <?php echo $l['persyaratan']; ?>
+                                                <?php echo nl2br(htmlspecialchars($l['persyaratan'], ENT_QUOTES, 'UTF-8')); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -52,7 +52,7 @@
                                         <div class="p-3 bg-white rounded-3 h-100 shadow-sm border-start border-success border-4">
                                             <h6 class="fw-bold text-uppercase small text-muted mb-3"><i class="bi bi-arrow-repeat me-2"></i>Prosedur</h6>
                                             <div class="small text-dark">
-                                                <?php echo $l['prosedur']; ?>
+                                                <?php echo nl2br(htmlspecialchars($l['prosedur'], ENT_QUOTES, 'UTF-8')); ?>
                                             </div>
                                         </div>
                                     </div>

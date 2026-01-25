@@ -22,16 +22,16 @@
             <div class="col-md-4 col-sm-6">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 gallery-item">
                     <div class="img-container position-relative" style="height: 280px;">
-                        <img src="assets/img/galeri/<?php echo $g['foto']; ?>" class="w-100 h-100" style="object-fit: cover;" alt="<?php echo htmlspecialchars($g['judul']); ?>">
+                        <img src="assets/img/galeri/<?php echo htmlspecialchars($g['foto'], ENT_QUOTES, 'UTF-8'); ?>" class="w-100 h-100" style="object-fit: cover;" alt="<?php echo htmlspecialchars($g['judul'], ENT_QUOTES, 'UTF-8'); ?>">
                         
                         <div class="gallery-overlay d-flex align-items-center justify-content-center">
-                            <button class="btn btn-light rounded-circle shadow" onclick="showImage('assets/img/galeri/<?php echo $g['foto']; ?>', '<?php echo htmlspecialchars($g['judul']); ?>')">
+                            <button class="btn btn-light rounded-circle shadow" onclick="showImage('assets/img/galeri/<?php echo htmlspecialchars($g['foto'], ENT_QUOTES, 'UTF-8'); ?>', '<?php echo htmlspecialchars($g['judul'], ENT_QUOTES, 'UTF-8'); ?>')">
                                 <i class="bi bi-zoom-in fs-4"></i>
                             </button>
                         </div>
                     </div>
                     <div class="card-body p-3 text-center">
-                        <h6 class="fw-bold mb-1 text-dark"><?php echo htmlspecialchars($g['judul']); ?></h6>
+                        <h6 class="fw-bold mb-1 text-dark"><?php echo htmlspecialchars($g['judul'], ENT_QUOTES, 'UTF-8'); ?></h6>
                         <small class="text-muted" style="font-size: 0.75rem;">
                             <i class="bi bi-calendar-event me-1"></i> <?php echo date('d M Y', strtotime($g['tgl_upload'])); ?>
                         </small>

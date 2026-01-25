@@ -39,7 +39,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">Email Resmi</h6>
-                            <p class="text-muted mb-0"><?php echo $k['email'] ?? '-'; ?></p>
+                            <p class="text-muted mb-0"><?php echo htmlspecialchars($k['email'] ?? '-', ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>
                     </div>
 
@@ -49,7 +49,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">WhatsApp Center</h6>
-                            <p class="text-muted mb-0"><?php echo $k['whatsapp'] ?? '-'; ?></p>
+                            <p class="text-muted mb-0"><?php echo htmlspecialchars($k['whatsapp'] ?? '-', ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -57,8 +57,8 @@
                 <div class="mt-5 pt-4">
                     <h6 class="fw-bold mb-3">Ikuti Media Sosial Kami:</h6>
                     <div class="d-flex gap-2">
-                        <a href="<?php echo $k['facebook'] ?? '#'; ?>" class="btn btn-primary rounded-circle p-2 px-3 shadow-sm"><i class="bi bi-facebook"></i></a>
-                        <a href="<?php echo $k['instagram'] ?? '#'; ?>" class="btn btn-danger rounded-circle p-2 px-3 shadow-sm"><i class="bi bi-instagram"></i></a>
+                        <a href="<?php echo htmlspecialchars($k['facebook'] ?? '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary rounded-circle p-2 px-3 shadow-sm"><i class="bi bi-facebook"></i></a>
+                        <a href="<?php echo htmlspecialchars($k['instagram'] ?? '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-danger rounded-circle p-2 px-3 shadow-sm"><i class="bi bi-instagram"></i></a>
                     </div>
                 </div>
             </div>

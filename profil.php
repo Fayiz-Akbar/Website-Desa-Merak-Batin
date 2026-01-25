@@ -25,7 +25,7 @@
                     </div>
                     <h4 class="fw-bold mb-4" style="color: var(--dark-blue);">Visi</h4>
                     <p class="vision-text italic">
-                        "<?php echo nl2br($profil['visi'] ?? ''); ?>"
+                        "<?php echo nl2br(htmlspecialchars($profil['visi'] ?? '', ENT_QUOTES, 'UTF-8')); ?>"
                     </p>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                         <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Misi Desa</h4>
                     </div>
                     <div class="mission-content">
-                        <?php echo nl2br($profil['misi'] ?? ''); ?>
+                        <?php echo nl2br(htmlspecialchars($profil['misi'] ?? '', ENT_QUOTES, 'UTF-8')); ?>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                 <h6 class="text-uppercase fw-bold mb-3" style="color: var(--accent-red); letter-spacing: 2px;">Jejak Langkah</h6>
                 <h2 class="fw-bold mb-4">Sejarah Desa Merak Batin</h2>
                 <div class="lh-lg text-muted">
-                    <?php echo nl2br($profil['sejarah'] ?? ''); ?>
+                    <?php echo nl2br(htmlspecialchars($profil['sejarah'] ?? '', ENT_QUOTES, 'UTF-8')); ?>
                 </div>
             </div>
         </div>
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                     <div class="mt-3">
-                        <a href="http://googleusercontent.com/maps.google.com/6" target="_blank" class="btn btn-outline-primary w-100 rounded-3">
+                        <a href="https://www.google.com/maps?q=-5.3098202,105.194385" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary w-100 rounded-3">
                             <i class="bi bi-box-arrow-up-right me-2"></i>Buka di Google Maps
                         </a>
                     </div>
@@ -187,14 +187,14 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 hover-lift">
                     <div class="position-relative">
-                        <img src="assets/img/potensi/<?php echo $p['foto']; ?>" class="card-img-top" style="height: 250px; object-fit: cover;">
+                        <img src="assets/img/potensi/<?php echo htmlspecialchars($p['foto'], ENT_QUOTES, 'UTF-8'); ?>" class="card-img-top" style="height: 250px; object-fit: cover;" alt="<?php echo htmlspecialchars($p['judul'], ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="position-absolute top-0 start-0 m-3">
-                            <span class="badge bg-crimson px-3 py-2 rounded-pill shadow-sm"><?php echo $p['nama_kategori']; ?></span>
+                            <span class="badge bg-crimson px-3 py-2 rounded-pill shadow-sm"><?php echo htmlspecialchars($p['nama_kategori'], ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                     </div>
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-2" style="color: var(--dark-blue);"><?php echo $p['judul']; ?></h5>
-                        <p class="text-muted small mb-0 lh-lg"><?php echo nl2br($p['deskripsi']); ?></p>
+                        <h5 class="fw-bold mb-2" style="color: var(--dark-blue);"><?php echo htmlspecialchars($p['judul'], ENT_QUOTES, 'UTF-8'); ?></h5>
+                        <p class="text-muted small mb-0 lh-lg"><?php echo nl2br(htmlspecialchars($p['deskripsi'], ENT_QUOTES, 'UTF-8')); ?></p>
                     </div>
                 </div>
             </div>
@@ -211,8 +211,14 @@
         <div class="rounded-4 overflow-hidden shadow-lg border mt-5" style="border: 3px solid #e9ecef !important;">
             <?php 
             $q_map = mysqli_fetch_assoc(mysqli_query($conn, "SELECT maps_embed FROM kontak WHERE id=1"));
-            $map_iframe = str_replace(['width="600"', 'height="450"'], ['width="100%"', 'height="550"'], $q_map['maps_embed'] ?? '');
-            echo $map_iframe; 
+            // Sanitasi iframe - hanya allow Google Maps domain
+            $map_iframe = $q_map['maps_embed'] ?? '';
+            if (strpos($map_iframe, 'google.com/maps') !== false) {
+                $map_iframe = str_replace(['width="600"', 'height="450"'], ['width="100%"', 'height="550"'], $map_iframe);
+                echo $map_iframe;
+            } else {
+                echo '<p class="text-muted p-5">Map tidak tersedia</p>';
+            }
             ?>
         </div>
     </div>

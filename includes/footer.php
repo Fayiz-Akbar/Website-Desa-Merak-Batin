@@ -11,12 +11,12 @@ $kontak = mysqli_fetch_assoc($query_footer);
             <div class="col-lg-5">
                 <div class="d-flex align-items-center mb-4">
                     <?php if (!empty($profil['logo'])): ?>
-                        <img src="assets/img/logo/<?php echo $profil['logo']; ?>" width="60" class="me-3">
+                        <img src="assets/img/logo/<?php echo htmlspecialchars($profil['logo'], ENT_QUOTES, 'UTF-8'); ?>" width="60" class="me-3">
                     <?php endif; ?>
                     <h4 class="fw-bold mb-0">DESA MERAK BATIN</h4>
                 </div>
                 <p class="opacity-75 lh-lg">
-                    <?php echo !empty($kontak['alamat']) ? nl2br($kontak['alamat']) : "Alamat belum diatur."; ?>
+                    <?php echo !empty($kontak['alamat']) ? nl2br(htmlspecialchars($kontak['alamat'], ENT_QUOTES, 'UTF-8')) : "Alamat belum diatur."; ?>
                 </p>
             </div>
             
@@ -37,25 +37,25 @@ $kontak = mysqli_fetch_assoc($query_footer);
                     <?php if (!empty($kontak['whatsapp'])): ?>
                     <div class="d-flex align-items-center gap-3">
                         <i class="bi bi-whatsapp fs-5 text-success"></i>
-                        <span><?php echo $kontak['whatsapp']; ?></span>
+                        <span><?php echo htmlspecialchars($kontak['whatsapp'], ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>
                     <?php endif; ?>
 
                     <?php if (!empty($kontak['email'])): ?>
                     <div class="d-flex align-items-center gap-3">
                         <i class="bi bi-envelope fs-5 text-warning"></i>
-                        <span><?php echo $kontak['email']; ?></span>
+                        <span><?php echo htmlspecialchars($kontak['email'], ENT_QUOTES, 'UTF-8'); ?></span>
                     </div>
                     <?php endif; ?>
                 </div>
 
                 <div class="mt-4 d-flex gap-3">
                     <?php if (!empty($kontak['facebook'])): ?>
-                        <a href="<?php echo $kontak['facebook']; ?>" target="_blank" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-facebook"></i></a>
+                        <a href="<?php echo htmlspecialchars($kontak['facebook'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-facebook"></i></a>
                     <?php endif; ?>
                     
                     <?php if (!empty($kontak['instagram'])): ?>
-                        <a href="<?php echo $kontak['instagram']; ?>" target="_blank" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-instagram"></i></a>
+                        <a href="<?php echo htmlspecialchars($kontak['instagram'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-instagram"></i></a>
                     <?php endif; ?>
                 </div>
             </div>
