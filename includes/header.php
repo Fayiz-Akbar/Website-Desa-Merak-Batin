@@ -31,12 +31,19 @@ $is_home = ($current_page == 'index.php' || $current_page == '');
             box-sizing: border-box;
         }
 
+        html {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc; 
             color: #1e293b;
             padding-top: 0 !important;
             margin-top: 0 !important;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         /* Navbar Styling */
